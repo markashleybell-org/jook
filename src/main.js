@@ -82,6 +82,12 @@ async function downloadFile(url) {
     );
 }
 
+async function deleteFileFromLocalCache(url) {
+    const cache = await caches.open("jook-audio");
+
+    return await cache.delete(url);
+}
+
 const template = document.getElementById("track-list-entry").innerText;
 
 const trackList = document.querySelector("#track-list tbody");
@@ -140,4 +146,5 @@ window.PLAYER = {
     start: start,
     playPause: playPause,
     download: downloadFile,
+    removeCached: deleteFileFromLocalCache
 };
