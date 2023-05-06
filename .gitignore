@@ -3,3 +3,5 @@ src/dist/
 
 src/data.json
 src/config.json
+
+tools/config.json

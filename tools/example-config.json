@@ -1,0 +1,7 @@
+{
+    "BucketName": "XXXXXXXX",
+    "BucketUrl": "https://XXXXXXXX.s3.XXXXXXXX.backblazeb2.com",
+    "ServiceUrl": "https://s3.XXXXXXXX.backblazeb2.com",
+    "AccessKey": "XXXXXXXX",
+    "SecretKey": "XXXXXXXX"
+}
