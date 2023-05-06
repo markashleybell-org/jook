@@ -23,9 +23,11 @@ async Task Main()
     
     BackblazeClient.Initialise(credentials);
     
+    int count = 0;
+    
     await foreach (var file in BackblazeClient.ListAllFiles())
     {
-        file.Dump();
+        $"{++count}: {file}".Dump();
     }
 }
 

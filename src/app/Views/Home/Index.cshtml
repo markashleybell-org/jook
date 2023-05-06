@@ -1,8 +1,10 @@
+﻿@model IndexViewModel
+
 <!DOCTYPE html>
 <html>
     <head>
         <title>Test Harness</title>
-        <link rel="stylesheet" type="text/css" href="dist/main.css">
+        <link rel="stylesheet" type="text/css" href="~/css/dist/main.css">
     </head>
     <body class="antialiased text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 p-10">
         <audio controls></audio>
@@ -21,14 +23,19 @@
         </table>
         <script id="track-list-entry" type="text/template">
             {{#tracks}}
-            <tr data-trackid="{{id}}" class="cursor-pointer hover:bg-slate-400 text-slate-500 dark:text-slate-400 hover:text-slate-900">
-                <td class="border border-slate-300 dark:border-slate-700 px-3 py-1">{{artist}}</td>
-                <td class="border border-slate-300 dark:border-slate-700 px-3 py-1">{{album}}</td>
-                <td class="border border-slate-300 dark:border-slate-700 px-3 py-1">{{title}}</td>
+            <tr data-trackid="{{trackID}}" class="cursor-pointer hover:bg-slate-400 text-slate-500 dark:text-slate-400 hover:text-slate-900">
+                <td class="border border-slate-300 dark:border-slate-700 px-3 py-1">{{artistName}}</td>
+                <td class="border border-slate-300 dark:border-slate-700 px-3 py-1">{{albumTitle}}</td>
+                <td class="border border-slate-300 dark:border-slate-700 px-3 py-1">{{trackTitle}}</td>
                 <td class="border border-slate-300 dark:border-slate-700 px-3 py-1"><a href="#" data-url="{{url}}" class="download">Download</a></td>
             </tr>
             {{/tracks}}
         </script>
-        <script type="module" src="main.js"></script>
+        <script>
+            var _CONFIG = {
+                CDN: '@(Model.CDN)'
+            };
+        </script>
+        <script type="module" src="~/js/src/main.js"></script>
     </body>
 </html>

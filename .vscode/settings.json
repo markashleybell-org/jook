@@ -1,0 +1,4 @@
+{
+    "explorer.excludeGitIgnore": true,
+    "tailwindCSS.experimental.configFile": "src/app/tailwind.config.js"
+}

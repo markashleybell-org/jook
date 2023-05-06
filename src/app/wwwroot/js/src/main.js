@@ -1,8 +1,8 @@
 import mustache from "https://cdnjs.cloudflare.com/ajax/libs/mustache.js/4.2.0/mustache.min.js";
 
-const config = await fetch("config.json").then((r) => r.json());
+const config = window._CONFIG;
 
-const data = await fetch("data.json").then((r) => r.json());
+const data = await fetch("/home/tracks").then((r) => r.json());
 
 const player = document.querySelector("audio");
 
@@ -108,7 +108,7 @@ async function startTrack(audioElement, cdn, track) {
 
 function start(i) {
     const track = data.tracks[i];
-    startTrack(player, config.cdn, track);
+    startTrack(player, config.CDN, track);
 }
 
 function playPause() {
@@ -119,15 +119,15 @@ trackList.addEventListener("click", async (el) => {
     if (el.target.nodeName === "TD") {
         const id = el.target.parentNode.dataset.trackid;
 
-        const track = data.tracks.find((t) => t.id == id);
+        const track = data.tracks.find((t) => t.trackID == id);
 
-        await startTrack(player, config.cdn, track);
+        await startTrack(player, config.CDN, track);
     }
 
     if (el.target.classList.contains("download")) {
         el.preventDefault();
         const url = el.target.dataset.url;
-        const response = await downloadFile(config.cdn + url);
+        const response = await downloadFile(config.CDN + url);
         const blob = await response.blob();
 
         const fullResponse = new Response(blob, {
@@ -142,6 +142,7 @@ trackList.addEventListener("click", async (el) => {
 });
 
 window.PLAYER = {
+    config: config,
     tracks: data.tracks,
     start: start,
     playPause: playPause,
