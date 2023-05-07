@@ -105,6 +105,13 @@ const trackList = document.querySelector("#track-list tbody");
 trackList.innerHTML = mustache.render(trackListEntryTemplate, data);
 
 async function startTrack(audioElement, cdn, track) {
+    if (track.trackID === nowPlayingData?.trackID)
+    {
+        audioElement.paused ? await audioElement.play() : await audioElement.pause();
+        
+        return;
+    }
+
     const cached = await caches.match(track.url).then(r => r ? r.blob() : undefined);
 
     audioElement.src = cached 
@@ -154,6 +161,7 @@ trackList.addEventListener("click", async (el) => {
 window.PLAYER = {
     config: config,
     tracks: data.tracks,
+    getNowPlayingData: function() { return nowPlayingData },
     start: start,
     playPause: playPause,
     download: downloadFile,
