@@ -32,22 +32,27 @@ public class HomeController : Controller
     {
         const string sql = @"
 SELECT 
-    ar.ArtistID,
-    ar.Name AS ArtistName,
-    ab.AlbumID,
-    ab.Title AS AlbumTitle,
+    aa.ArtistID AS AlbumArtistID,
+    aa.Name AS AlbumArtist,
+    ta.ArtistID,
+    ta.Name AS Artist,
+    a.AlbumID,
+    a.Title AS Album,
     t.TrackID,
-    t.Title AS TrackTitle,
+    t.Title AS Title,
     t.Url AS Url
 FROM 
     Tracks t
 INNER JOIN
-    Albums ab ON ab.AlbumID = t.AlbumID
+    Albums a ON a.AlbumID = t.AlbumID
 INNER JOIN
-    Artists ar ON ar.ArtistID = ab.ArtistID
+    Artists aa ON aa.ArtistID = a.ArtistID
+LEFT JOIN
+    Artists ta ON ta.ArtistID = t.ArtistID
 ORDER BY
-    ar.Name,
-    ab.Title,
+    aa.Name,
+    ta.Name,
+    a.Title,
     t.Title";
 
         using var conn = new SqlConnection(_settings.ConnectionString);
