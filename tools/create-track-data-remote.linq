@@ -40,8 +40,8 @@ async Task Main()
     using var conn = new SqlConnection("Server=localhost;Database=jook;Trusted_Connection=yes;TrustServerCertificate=true;");
 
     var existingArtists = conn.Query<(int ArtistID, string Name)>("SELECT ArtistID, Name FROM Artists ORDER BY Name");
-    var existingAlbums = conn.Query<(int AlbumID, string Title)>("SELECT AlbumID, Title FROM Albums ORDER BY Title");
-    var existingTracks = conn.Query<(int TrackID, string Title)>("SELECT TrackID, Title FROM Tracks ORDER BY Title");
+    var existingAlbums = conn.Query<(int AlbumID, string Key)>("SELECT AlbumID, CAST(ArtistID AS NVARCHAR) + '~' + Title AS [Key] FROM Albums ORDER BY Title");
+    var existingTracks = conn.Query<(int TrackID, string Key)>("SELECT TrackID, CAST(ArtistID AS NVARCHAR) + '~' + Title AS [Key] FROM Tracks ORDER BY Title");
     var existingTrackUrls = conn.Query<(int TrackID, string Url)>("SELECT TrackID, Url FROM Tracks ORDER BY Title");
 
     foreach (var artist in existingArtists)
@@ -51,12 +51,12 @@ async Task Main()
 
     foreach (var album in existingAlbums)
     {
-        albums.Add(album.Title, album.AlbumID);
+        albums.Add(album.Key, album.AlbumID);
     }
 
     foreach (var track in existingTracks)
     {
-        tracks.Add(track.Title, track.TrackID);
+        tracks.Add(track.Key, track.TrackID);
     }
 
     foreach (var track in existingTrackUrls)
@@ -91,6 +91,7 @@ async Task Main()
     var progress = new DumpContainer().Dump("Processing");
 
     var files = await BackblazeClient
+        // .ListAllFiles()
         .ListAllFiles("Compilations/SXSW 2011")
         //.Skip(10000)
         //.Take(4000)
@@ -168,17 +169,7 @@ async Task Main()
         progress.Refresh();
 
         try
-        {
-            var albumArtistID = artists.TryGetValue(track.AlbumArtist, out var aaID) ? aaID : default(int?);
-            
-            if (track.AlbumArtist is not null && !albumArtistID.HasValue)
-            {
-                // Create a new artist record
-                albumArtistID = (int)conn.ExecuteScalar("INSERT INTO Artists (Name) VALUES (@Name); SELECT CAST(SCOPE_IDENTITY() AS INT);", new { Name = track.AlbumArtist });
-
-                artists.Add(track.AlbumArtist, albumArtistID.Value);
-            }
-            
+        {            
             var trackArtistID = artists.TryGetValue(track.Artist, out var taID) ? taID : default(int?);
 
             if (track.Artist is not null && !trackArtistID.HasValue)
@@ -189,7 +180,25 @@ async Task Main()
                 artists.Add(track.Artist, trackArtistID.Value);
             }
 
-            var albumID = albums.TryGetValue(track.Album, out var abID) ? abID : default(int?);
+            // Assume the album artist is the same as the track artist, unless specified
+            var albumArtistID = trackArtistID;
+
+            if (track.AlbumArtist is not null)
+            {
+                albumArtistID = artists.TryGetValue(track.AlbumArtist, out var aaID) ? aaID : default(int?);
+
+                if (!albumArtistID.HasValue)
+                {
+                    // Create a new artist record
+                    albumArtistID = (int)conn.ExecuteScalar("INSERT INTO Artists (Name) VALUES (@Name); SELECT CAST(SCOPE_IDENTITY() AS INT);", new { Name = track.AlbumArtist });
+
+                    artists.Add(track.AlbumArtist, albumArtistID.Value);
+                }
+            }
+
+            var albumKey = albumArtistID + "~" + track.Album;
+
+            var albumID = albums.TryGetValue(albumKey, out var abID) ? abID : default(int?);
             
             if (track.Album is not null && !albumID.HasValue)
             {
@@ -201,12 +210,14 @@ async Task Main()
                 // Create a new album record
                 albumID = (int)conn.ExecuteScalar("INSERT INTO Albums (ArtistID, Title) VALUES (@ArtistID, @Title); SELECT CAST(SCOPE_IDENTITY() AS INT);", albumParameters);
 
-                albums.Add(track.Album, albumID.Value);
+                albums.Add(albumKey, albumID.Value);
             }
 
-            var trackID = artists.TryGetValue(track.Title, out var tID) ? tID : default(int?);
+            var trackKey = trackArtistID + "~" + track.Title;
 
-            if (track.Title is not null && !trackID.HasValue)
+            var trackID = artists.TryGetValue(trackKey, out var tID) ? tID : default(int?);
+
+            if (track.Title is not null && !trackID.HasValue && !tracks.ContainsKey(trackKey))
             {
                 var trackParameters = new { 
                     albumID,
@@ -218,7 +229,7 @@ async Task Main()
                 // Create a new track record
                 trackID = (int)conn.ExecuteScalar("INSERT INTO Tracks (AlbumID, ArtistID, Title, Url) VALUES (@AlbumID, @ArtistID, @Title, @Url); SELECT CAST(SCOPE_IDENTITY() AS INT);", trackParameters);
 
-                tracks.Add(track.Title, trackID.Value);
+                tracks.Add(trackKey, trackID.Value);
             }
             
             results.Add($"STORED RECORD {id}");
