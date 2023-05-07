@@ -6,7 +6,17 @@ const data = await fetch("/home/tracks").then((r) => r.json());
 
 const player = document.querySelector("audio");
 
-function nowPlaying(trackInfo) {
+let nowPlayingData = null;
+
+const nowPlayingTemplate = document.getElementById("now-playing-template").innerText;
+
+const nowPlaying = document.querySelector("#now-playing");
+
+function setNowPlaying(trackInfo) {
+    nowPlayingData = trackInfo;
+
+    nowPlaying.innerHTML = mustache.render(nowPlayingTemplate, nowPlayingData);
+
     if ("mediaSession" in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
             title: trackInfo.title,
@@ -88,11 +98,11 @@ async function deleteFileFromLocalCache(url) {
     return await cache.delete(url);
 }
 
-const template = document.getElementById("track-list-entry").innerText;
+const trackListEntryTemplate = document.getElementById("track-list-entry-template").innerText;
 
 const trackList = document.querySelector("#track-list tbody");
 
-trackList.innerHTML = mustache.render(template, data);
+trackList.innerHTML = mustache.render(trackListEntryTemplate, data);
 
 async function startTrack(audioElement, cdn, track) {
     const cached = await caches.match(track.url).then(r => r ? r.blob() : undefined);
@@ -103,7 +113,7 @@ async function startTrack(audioElement, cdn, track) {
 
     await audioElement.play();
 
-    nowPlaying(track);
+    setNowPlaying(track);
 }
 
 function start(i) {
