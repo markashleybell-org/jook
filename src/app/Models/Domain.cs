@@ -7,10 +7,10 @@ public record Track(int TrackID, int AlbumID, string Title, string Url);
 public record TrackSummary(
     int AlbumArtistID,
     string AlbumArtist,
-    int ArtistID,
-    string Artist,
     int AlbumID,
     string Album,
+    int ArtistID,
+    string Artist,
     int TrackID,
     int? TrackNumber,
     string Title,

@@ -81,7 +81,8 @@ async Task Main()
          .Replace("#", "%23")
          .Replace("+", "%2B")
          .Replace("=", "%3D")
-         .Replace("$", "%24");
+         .Replace("$", "%24")
+         .Replace("@", "%40");
          
     string normalise(string s) =>
         !string.IsNullOrWhiteSpace(s)
@@ -91,7 +92,7 @@ async Task Main()
     var progress = new DumpContainer().Dump("Processing");
 
     var batchSize = 2000;
-    var batch = 1;
+    var batch = 13;
 
     var files = await BackblazeClient
         .ListAllFiles()

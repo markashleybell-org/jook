@@ -34,10 +34,10 @@ public class HomeController : Controller
 SELECT 
     aa.ArtistID AS AlbumArtistID,
     aa.Name AS AlbumArtist,
-    ta.ArtistID,
-    ta.Name AS Artist,
     a.AlbumID,
     a.Title AS Album,
+    ta.ArtistID,
+    ta.Name AS Artist,
     t.TrackID,
     t.TrackNumber,
     t.Title AS Title,
@@ -52,9 +52,9 @@ LEFT JOIN
     Artists ta ON ta.ArtistID = t.ArtistID
 ORDER BY
     aa.Name,
-    ta.Name,
     a.Title,
     t.TrackNumber,
+    ta.Name,
     t.Title";
 
         using var conn = new SqlConnection(_settings.ConnectionString);
