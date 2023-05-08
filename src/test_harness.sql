@@ -28,6 +28,7 @@ SELECT
     a.AlbumID,
     a.Title AS Album,
     t.TrackID,
+    t.TrackNumber,
     t.Title AS Title,
     t.Url AS Url
 FROM 
@@ -42,4 +43,5 @@ ORDER BY
     aa.Name,
     ta.Name,
     a.Title,
+    t.TrackNumber,
     t.Title

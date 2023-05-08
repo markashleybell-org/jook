@@ -222,12 +222,13 @@ async Task Main()
                 var trackParameters = new { 
                     albumID,
                     ArtistID = trackArtistID,
+                    TrackNumber = track.TrackNo,
                     track.Title, 
                     track.Url 
                 };
                 
                 // Create a new track record
-                trackID = (int)conn.ExecuteScalar("INSERT INTO Tracks (AlbumID, ArtistID, Title, Url) VALUES (@AlbumID, @ArtistID, @Title, @Url); SELECT CAST(SCOPE_IDENTITY() AS INT);", trackParameters);
+                trackID = (int)conn.ExecuteScalar("INSERT INTO Tracks (AlbumID, ArtistID, TrackNumber, Title, Url) VALUES (@AlbumID, @ArtistID, @TrackNumber, @Title, @Url); SELECT CAST(SCOPE_IDENTITY() AS INT);", trackParameters);
 
                 tracks.Add(trackKey, trackID.Value);
             }
