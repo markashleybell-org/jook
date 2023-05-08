@@ -90,11 +90,17 @@ async Task Main()
 
     var progress = new DumpContainer().Dump("Processing");
 
+    var batchSize = 2000;
+    var batch = 1;
+
     var files = await BackblazeClient
-        // .ListAllFiles()
-        .ListAllFiles("Compilations/SXSW 2011")
-        //.Skip(10000)
-        //.Take(4000)
+        .ListAllFiles()
+        // .ListAllFiles("Compilations/SXSW 2011")
+        // .Skip(4000)
+        // .Take(1000)
+        // .Take(100)
+        .Skip(((batch - 1) * batchSize))
+        .Take(batchSize)
         .ToArrayAsync();
     
     // files.Dump();
