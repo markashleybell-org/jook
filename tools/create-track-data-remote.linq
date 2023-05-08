@@ -82,7 +82,8 @@ async Task Main()
          .Replace("+", "%2B")
          .Replace("=", "%3D")
          .Replace("$", "%24")
-         .Replace("@", "%40");
+         .Replace("@", "%40")
+         .Replace("â", "%C3%A2");
          
     string normalise(string s) =>
         !string.IsNullOrWhiteSpace(s)
@@ -91,20 +92,24 @@ async Task Main()
 
     var progress = new DumpContainer().Dump("Processing");
 
-    var batchSize = 2000;
-    var batch = 13;
+    //(await BackblazeClient.ListAllFiles(filter: false).CountAsync()).Dump("ALL");
+    //(await BackblazeClient.ListAllFiles().CountAsync()).Dump("AUDIO");
+
+    //return;
+
+    //    var batchSize = 2000;
+    //    var batch = 13;
+    //
+    //    var files = await BackblazeClient
+    //        .ListAllFiles()
+    //        // .ListAllFiles("Compilations/SXSW 2011")
+    //        .Skip(((batch - 1) * batchSize))
+    //        .Take(batchSize)
+    //        .ToArrayAsync();
 
     var files = await BackblazeClient
         .ListAllFiles()
-        // .ListAllFiles("Compilations/SXSW 2011")
-        // .Skip(4000)
-        // .Take(1000)
-        // .Take(100)
-        .Skip(((batch - 1) * batchSize))
-        .Take(batchSize)
         .ToArrayAsync();
-    
-    // files.Dump();
 
     var data = new List<TrackData>(files.Length);
     var results = new List<string>();
@@ -122,6 +127,9 @@ async Task Main()
 
         if (trackUrls.ContainsKey(path))
         {
+            progress.Content = $"SKIPPED {file}";
+            progress.Refresh();
+
             results.Add($"SKIPPED {file}");
 
             continue;
@@ -306,7 +314,7 @@ public static class BackblazeClient
         await File.WriteAllBytesAsync($"{path}", bytes);            
     }
 
-    public static async IAsyncEnumerable<string> ListAllFiles(string prefix = null)
+    public static async IAsyncEnumerable<string> ListAllFiles(string prefix = null, bool filter = true)
     {
         bool moreFiles = true;
         string continuationToken = null;
@@ -320,8 +328,12 @@ public static class BackblazeClient
             };
 
             var response = await _s3.ListObjectsV2Async(request);
+            
+            var files = filter
+                ? response.S3Objects.Where(f => _extensions.Contains(Path.GetExtension(f.Key), StringComparer.OrdinalIgnoreCase))
+                : response.S3Objects;
 
-            foreach (var file in response.S3Objects.Where(f => _extensions.Contains(Path.GetExtension(f.Key), StringComparer.OrdinalIgnoreCase)))
+            foreach (var file in files)
             {
                 yield return file.Key;
             }
