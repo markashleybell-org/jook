@@ -2,6 +2,7 @@ USE jook
 GO
 
 -- SELECT * FROM Artists
+-- SELECT * FROM Genres
 -- SELECT * FROM Albums
 -- SELECT * FROM Tracks
 
