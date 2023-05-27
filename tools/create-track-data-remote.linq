@@ -32,39 +32,27 @@ async Task Main()
     
     BackblazeClient.Initialise(credentials);
 
-    var artists = new Dictionary<string, int>();
-    var albums = new Dictionary<string, int>();
-    var tracks = new Dictionary<string, int>();
-    var trackUrls = new Dictionary<string, int>();
-
     using var conn = new SqlConnection("Server=localhost;Database=jook;Trusted_Connection=yes;TrustServerCertificate=true;");
 
-    var existingArtists = conn.Query<(int ArtistID, string Name)>("SELECT ArtistID, Name FROM Artists ORDER BY Name");
-    var existingAlbums = conn.Query<(int AlbumID, string Key)>("SELECT AlbumID, CAST(ArtistID AS NVARCHAR) + '~' + Title AS [Key] FROM Albums ORDER BY Title");
-    var existingTracks = conn.Query<(int TrackID, string Key)>("SELECT TrackID, CAST(ArtistID AS NVARCHAR) + '~' + Title AS [Key] FROM Tracks ORDER BY Title");
-    var existingTrackUrls = conn.Query<(int TrackID, string Url)>("SELECT TrackID, Url FROM Tracks ORDER BY Title");
+    var artists = conn
+        .Query<(int ArtistID, string Name)>("SELECT ArtistID, Name FROM Artists ORDER BY Name")
+        .ToDictionary(x => x.Name, x => x.ArtistID);
+        
+    var albums = conn
+        .Query<(int AlbumID, string Key)>("SELECT AlbumID, CAST(ArtistID AS NVARCHAR) + '~' + Title AS [Key] FROM Albums ORDER BY Title")
+        .ToDictionary(x => x.Key, x => x.AlbumID);
+        
+    var tracks = conn
+        .Query<(int TrackID, string Key)>("SELECT TrackID, CAST(ArtistID AS NVARCHAR) + '~' + CAST(AlbumID AS NVARCHAR) + '~' + Title AS [Key] FROM Tracks ORDER BY Title")
+        .ToDictionary(x => x.Key, x => x.TrackID);
+        
+    var trackUrls = conn
+        .Query<(int TrackID, string Url)>("SELECT TrackID, Url FROM Tracks ORDER BY Title")
+        .ToDictionary(x => x.Url, x => x.TrackID);
 
-    foreach (var artist in existingArtists)
-    {
-        artists.Add(artist.Name, artist.ArtistID);
-    }
-
-    foreach (var album in existingAlbums)
-    {
-        albums.Add(album.Key, album.AlbumID);
-    }
-
-    foreach (var track in existingTracks)
-    {
-        tracks.Add(track.Key, track.TrackID);
-    }
-
-    foreach (var track in existingTrackUrls)
-    {
-        trackUrls.Add(track.Url, track.TrackID);
-    }
-
-    // trackUrls.Dump();
+    var genres = conn
+        .Query<(int GenreID, string Name)>("SELECT GenreID, Name FROM Genres ORDER BY Name")
+        .ToDictionary(x => x.Name, x => x.GenreID);
 
     // Yes, it's horrible, but none of the many, many .NET variants of URLEncode actually seem to do it properly (still, in 2023)
     string urlEncode(string s) =>
@@ -97,19 +85,19 @@ async Task Main()
 
     //return;
 
-    //    var batchSize = 2000;
-    //    var batch = 13;
-    //
-    //    var files = await BackblazeClient
-    //        .ListAllFiles()
-    //        // .ListAllFiles("Compilations/SXSW 2011")
-    //        .Skip(((batch - 1) * batchSize))
-    //        .Take(batchSize)
-    //        .ToArrayAsync();
+    var batchSize = 50;
+    var batch = 1;
 
     var files = await BackblazeClient
         .ListAllFiles()
+        // .ListAllFiles("Compilations/SXSW 2011")
+        .Skip(((batch - 1) * batchSize))
+        .Take(batchSize)
         .ToArrayAsync();
+
+    //var files = await BackblazeClient
+    //    .ListAllFiles()
+    //    .ToArrayAsync();
 
     var data = new List<TrackData>(files.Length);
     var results = new List<string>();
@@ -150,7 +138,8 @@ async Task Main()
                 Album = normalise(t.Album),
                 Artist = normalise(t.Artist),
                 Title = normalise(t.Title),
-                Url = path
+                Url = path,
+                Genre = normalise(t.Genre)
             };
 
             data.Add(track);
@@ -211,6 +200,16 @@ async Task Main()
                 }
             }
 
+            var genreID = genres.TryGetValue(track.Genre, out var gID) ? gID : default(int?);
+
+            if (track.Genre is not null && !genreID.HasValue)
+            {
+                // Create a new genre record
+                genreID = (int)conn.ExecuteScalar("INSERT INTO Genres (Name) VALUES (@Name); SELECT CAST(SCOPE_IDENTITY() AS INT);", new { Name = track.Genre });
+
+                genres.Add(track.Genre, genreID.Value);
+            }
+
             var albumKey = albumArtistID + "~" + track.Album;
 
             var albumID = albums.TryGetValue(albumKey, out var abID) ? abID : default(int?);
@@ -228,7 +227,7 @@ async Task Main()
                 albums.Add(albumKey, albumID.Value);
             }
 
-            var trackKey = trackArtistID + "~" + track.Title;
+            var trackKey = trackArtistID + "~" + albumID + "~" + track.Title;
 
             var trackID = artists.TryGetValue(trackKey, out var tID) ? tID : default(int?);
 
@@ -237,13 +236,14 @@ async Task Main()
                 var trackParameters = new { 
                     albumID,
                     ArtistID = trackArtistID,
+                    genreID,
                     TrackNumber = track.TrackNo,
                     track.Title, 
                     track.Url 
                 };
                 
                 // Create a new track record
-                trackID = (int)conn.ExecuteScalar("INSERT INTO Tracks (AlbumID, ArtistID, TrackNumber, Title, Url) VALUES (@AlbumID, @ArtistID, @TrackNumber, @Title, @Url); SELECT CAST(SCOPE_IDENTITY() AS INT);", trackParameters);
+                trackID = (int)conn.ExecuteScalar("INSERT INTO Tracks (AlbumID, ArtistID, GenreID, TrackNumber, Title, Url) VALUES (@AlbumID, @ArtistID, @GenreID, @TrackNumber, @Title, @Url); SELECT CAST(SCOPE_IDENTITY() AS INT);", trackParameters);
 
                 tracks.Add(trackKey, trackID.Value);
             }
@@ -367,6 +367,8 @@ public class TrackData
     public string Title { get; set; }
 
     public string Url { get; set; }
+    
+    public string Genre { get; set; }
 }
 
 public class S3Credentials

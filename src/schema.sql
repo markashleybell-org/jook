@@ -37,15 +37,22 @@ CREATE TABLE [dbo].[Albums] (
     CONSTRAINT [FK_Albums_Artists] FOREIGN KEY ([ArtistID]) REFERENCES [dbo].[Artists] ([ArtistID])
 );
 
+CREATE TABLE [dbo].[Genres] (
+    [GenreID]       INT IDENTITY (1, 1) NOT NULL,
+    [Name]          NVARCHAR (256)      NOT NULL,
+    CONSTRAINT [PK_Genres] PRIMARY KEY CLUSTERED ([GenreID] ASC)
+);
+
 CREATE TABLE [dbo].[Tracks] (
     [TrackID]       INT IDENTITY (1, 1) NOT NULL,
     [AlbumID]       INT                 NOT NULL,
     [ArtistID]      INT                 NOT NULL,
+    [GenreID]       INT                 NOT NULL,
     [TrackNumber]   INT                 NULL,
     [Title]         NVARCHAR (256)      NOT NULL,
     [Url]           NVARCHAR (256)      NOT NULL,
     CONSTRAINT [PK_Tracks] PRIMARY KEY CLUSTERED ([TrackID] ASC),
     CONSTRAINT [FK_Tracks_Albums] FOREIGN KEY ([AlbumID]) REFERENCES [dbo].[Albums] ([AlbumID]),
-    CONSTRAINT [FK_Tracks_Artists] FOREIGN KEY ([ArtistID]) REFERENCES [dbo].[Artists] ([ArtistID])
+    CONSTRAINT [FK_Tracks_Artists] FOREIGN KEY ([ArtistID]) REFERENCES [dbo].[Artists] ([ArtistID]),
+    CONSTRAINT [FK_Tracks_Genres] FOREIGN KEY ([GenreID]) REFERENCES [dbo].[Genres] ([GenreID])
 );
-

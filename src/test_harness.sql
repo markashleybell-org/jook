@@ -1,24 +1,9 @@
+USE jook
+GO
+
 -- SELECT * FROM Artists
 -- SELECT * FROM Albums
 -- SELECT * FROM Tracks
-
-/*
-SELECT 
-    ar.Name,
-    ab.Title,
-    t.Title,
-    t.Url
-FROM 
-    Tracks t
-INNER JOIN
-    Albums ab ON ab.AlbumID = t.AlbumID
-INNER JOIN
-    Artists ar ON ar.ArtistID = ab.ArtistID
-ORDER BY
-    ar.Name,
-    ab.Title,
-    t.Title
-*/
 
 SELECT 
     aa.ArtistID AS AlbumArtistID,
@@ -27,6 +12,8 @@ SELECT
     a.Title AS Album,
     ta.ArtistID,
     ta.Name AS Artist,
+    g.GenreID,
+    g.Name AS Genre,
     t.TrackID,
     t.TrackNumber,
     t.Title AS Title,
@@ -39,9 +26,12 @@ INNER JOIN
     Artists aa ON aa.ArtistID = a.ArtistID
 LEFT JOIN
     Artists ta ON ta.ArtistID = t.ArtistID
+LEFT JOIN
+    Genres g ON g.GenreID = t.GenreID
 ORDER BY
     aa.Name,
     a.Title,
     t.TrackNumber,
     ta.Name,
     t.Title
+
