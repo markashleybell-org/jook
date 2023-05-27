@@ -83,21 +83,14 @@ async Task Main()
     //(await BackblazeClient.ListAllFiles(filter: false).CountAsync()).Dump("ALL");
     //(await BackblazeClient.ListAllFiles().CountAsync()).Dump("AUDIO");
 
-    //return;
-
-    var batchSize = 50;
+    var batchSize = 2000;
     var batch = 1;
 
     var files = await BackblazeClient
         .ListAllFiles()
-        // .ListAllFiles("Compilations/SXSW 2011")
         .Skip(((batch - 1) * batchSize))
         .Take(batchSize)
         .ToArrayAsync();
-
-    //var files = await BackblazeClient
-    //    .ListAllFiles()
-    //    .ToArrayAsync();
 
     var data = new List<TrackData>(files.Length);
     var results = new List<string>();
