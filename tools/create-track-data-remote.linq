@@ -83,7 +83,7 @@ async Task Main()
     //(await BackblazeClient.ListAllFiles(filter: false).CountAsync()).Dump("ALL");
     //(await BackblazeClient.ListAllFiles().CountAsync()).Dump("AUDIO");
 
-    var batchSize = 2000;
+    var batchSize = 50000;
     var batch = 1;
 
     var files = await BackblazeClient
