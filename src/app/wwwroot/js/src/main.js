@@ -2,12 +2,9 @@ import mustache from "https://cdnjs.cloudflare.com/ajax/libs/mustache.js/4.2.0/m
 
 import { config } from "./config.min.js"
 
-const data = await fetch("/tracks").then((r) => r.json());
-
-console.log(data[1]);
-
 const player = document.querySelector("audio");
 
+let data = null;
 let nowPlayingData = null;
 
 const nowPlayingTemplate = document.getElementById("now-playing-template").innerText;
@@ -104,10 +101,6 @@ const trackListEntryTemplate = document.getElementById("track-list-entry-templat
 
 const trackList = document.querySelector("#track-list tbody");
 
-let tmp = mustache.render(trackListEntryTemplate, data);
-
-trackList.innerHTML = mustache.render(trackListEntryTemplate, data);
-
 async function startTrack(audioElement, cdn, track) {
     if (track.trackID === nowPlayingData?.trackID)
     {
@@ -136,18 +129,27 @@ function playPause() {
     player.paused ? player.play() : player.pause();
 }
 
-trackList.addEventListener("click", async (el) => {
-    if (el.target.nodeName === "TD") {
-        const id = el.target.parentNode.dataset.trackid;
+const searchForm = document.getElementById("search-form");
+
+searchForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const url = searchForm.action + "?" + new URLSearchParams(new FormData(searchForm));
+    data = await fetch(url).then((r) => r.json());
+    trackList.innerHTML = mustache.render(trackListEntryTemplate, data);
+});
+
+trackList.addEventListener("click", async (e) => {
+    if (e.target.nodeName === "TD") {
+        const id = e.target.parentNode.dataset.trackid;
 
         const track = data.tracks.find((t) => t.trackID == id);
 
         await startTrack(player, config.CDN, track);
     }
 
-    if (el.target.classList.contains("download")) {
-        el.preventDefault();
-        const url = el.target.dataset.url;
+    if (e.target.classList.contains("download")) {
+        e.preventDefault();
+        const url = e.target.dataset.url;
         const response = await downloadFile(config.CDN + url);
         const blob = await response.blob();
 
@@ -164,7 +166,6 @@ trackList.addEventListener("click", async (el) => {
 
 window.PLAYER = {
     config: config,
-    tracks: data.tracks,
     getNowPlayingData: function() { return nowPlayingData },
     start: start,
     playPause: playPause,
