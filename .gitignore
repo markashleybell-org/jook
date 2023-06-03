@@ -409,5 +409,6 @@ appsettings.Development.json
 
 src/app/wwwroot/css/dist/
 src/app/wwwroot/js/dist/
+src/app/wwwroot/js/src/config.js
 
 tools/config.json

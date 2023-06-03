@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <title>Test Harness</title>
+        <link rel="stylesheet" type="text/css" href="/css/dist/bootstrap.min.css">
+        <!-- <link rel="stylesheet" type="text/css" href="/css/dist/main.min.css"> -->
+    </head>
+    <body>
+        <nav>
+            <audio controls></audio>
+            <div id="now-playing">
+                <span>Click a track to play</span>
+            </div>
+        </nav>
+        <div class="p-10 mt-24">
+            <table id="track-list">
+                <thead>
+                    <tr>
+                        <th>Album Artist</th>
+                        <th>Artist</th>
+                        <th>Album</th>
+                        <th>Title</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <script id="now-playing-template" type="text/template">
+            <span>{{artist}} {{title}}</span>
+        </script>
+        <script id="track-list-entry-template" type="text/template">
+            {{#tracks}}
+            <tr data-trackid="{{trackID}}">
+                <td>{{albumArtist}}</td>
+                <td>{{artist}}</td>
+                <td>{{album}}</td>
+                <td>{{title}}</td>
+                <td><a href="#" data-url="{{url}}" class="download">Download</a></td>
+            </tr>
+            {{/tracks}}
+        </script>
+        <script type="module" src="/js/dist/config.min.js"></script>
+        <script type="module" src="/js/dist/main.min.js"></script>
+    </body>
+</html>

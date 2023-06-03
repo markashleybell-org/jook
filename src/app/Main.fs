@@ -1,6 +1,5 @@
 module jook.Main
 
-open Dapper
 open Falco
 open Falco.Routing
 open Falco.HostBuilder
@@ -10,6 +9,7 @@ open Microsoft.Extensions.Logging
 open System
 open System.Data
 open Microsoft.Data.SqlClient
+open System.Text.Json
 
 let env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
 
@@ -18,15 +18,13 @@ let config = configuration [||] {
     optional_json $"appsettings.{env}.json"
 }
 
+let jsonOptions = JsonSerializerOptions()
+
+jsonOptions.PropertyNamingPolicy <- JsonNamingPolicy.CamelCase
+
 let connectionString = config.GetValue<string>("Settings:ConnectionString")
-let cdn = config.GetValue<string>("Settings:Cdn")
 
 type ApplicationLogger = class end
-
-let configureLogging (log : ILoggingBuilder) =
-    log.ClearProviders() |> ignore
-    log.AddConsole() |> ignore
-    log
 
 let getDatabaseConnection () : IDbConnection =
     new SqlConnection(connectionString) :> IDbConnection
@@ -42,20 +40,20 @@ let get route handler =
 [<EntryPoint>]
 let main args =
     webHost args {
-        logging configureLogging
-
+        use_default_files
+        use_static_files
         endpoints [
-            get "/" (fun _ cf q -> 
+            get "/tracks" (fun _ cf q -> 
                 let title = q.TryGet ("title")
                 let artist = q.TryGet ("artist")
                 let genre = q.TryGet ("genre")
                 
-                let tracks = trackList cf title artist genre
+                let data = {| tracks = trackList cf title artist genre |}
 
-                Response.ofJson tracks)
+                Response.ofJsonOptions jsonOptions data)
             get "/config" (fun logger _ _ -> 
                 logger.LogInformation "TEST"
-                Response.ofJson cdn)
+                Response.ofJson jsonOptions)
         ]
     }
     0
