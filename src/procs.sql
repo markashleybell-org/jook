@@ -8,7 +8,7 @@ BEGIN
     SET @Artist = NULLIF(ISNULL(@Artist, ''), '')
     SET @Genre = NULLIF(ISNULL(@Genre, ''), '')
 
-    SELECT 
+    SELECT
         aa.ArtistID AS AlbumArtistID,
         aa.Name AS AlbumArtist,
         a.AlbumID,

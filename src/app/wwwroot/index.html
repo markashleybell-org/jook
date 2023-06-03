@@ -7,6 +7,13 @@
     </head>
     <body data-bs-theme="dark">
         <nav>
+            <form method="get" action="/tracks" id="search-form">
+                <input type="text" name="title" placeholder="Title" value="">
+                <input type="text" name="artist" placeholder="Artist" value="">
+                <input type="text" name="genre" placeholder="Genre" value="">
+                <button type="submit">Search</button>
+            </div>
+            <br>
             <audio controls></audio>
             <div id="now-playing">
                 <span>Click a track to play</span>
@@ -37,7 +44,7 @@
                 <td>{{artist}}</td>
                 <td>{{album}}</td>
                 <td>{{title}}</td>
-                <td><a href="#" data-url="{{url}}" class="download">Download</a></td>
+                <td class="text-end"><a href="#" data-url="{{url}}" class="download">Download</a></td>
             </tr>
             {{/tracks}}
         </script>
