@@ -1,0 +1,10 @@
+https://nozzlegear.com/blog/using-dapper-with-fsharp
+https://learn.microsoft.com/en-us/dotnet/fsharp/tutorials/type-providers/
+https://www.falcoframework.com/docs/host.html#registering-services
+https://github.com/pimbrouwers/FalcoJournal/blob/main/src/FalcoJournal/Service.fs
+https://github.com/pimbrouwers/Falco/blob/master/samples/Tutorial/Program.fs
+https://github.com/pimbrouwers/Falco/blob/master/samples/SecureRestApi/Program.fs
+https://github.com/pimbrouwers/Falco/issues/13
+https://www.pimbrouwers.com/2020/12/08/fsharp-on-the-web-a-guide-to-building-websites-with-falco-dotnet-x-and-aspdotnet-core.html
+https://stackoverflow.com/questions/70040464/how-to-log-in-f-in-a-functional-way-using-nlog
+https://devblogs.microsoft.com/dotnet/build-a-web-service-with-f-and-net-core-2-0/
