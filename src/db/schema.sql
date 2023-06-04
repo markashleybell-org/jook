@@ -11,7 +11,6 @@ WHERE
     database_id  = db_id('jook')
 
 EXEC(@kill)
-
 GO
 
 DROP DATABASE jook

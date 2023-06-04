@@ -1,3 +1,6 @@
+USE jook
+GO
+
 CREATE OR ALTER PROCEDURE TrackSearch
     @Title NVARCHAR(256),
     @Artist NVARCHAR(256),

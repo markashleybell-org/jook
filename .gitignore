@@ -411,4 +411,6 @@ src/app/wwwroot/css/dist/
 src/app/wwwroot/js/dist/
 src/app/wwwroot/js/src/config.js
 
+!src/db/*.code-workspace
+
 tools/config.json
