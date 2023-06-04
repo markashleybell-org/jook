@@ -51,9 +51,6 @@ let main args =
                 let data = {| tracks = trackList cf title artist genre |}
 
                 Response.ofJsonOptions jsonOptions data)
-            get "/config" (fun logger _ _ -> 
-                logger.LogInformation "TEST"
-                Response.ofJson jsonOptions)
         ]
     }
     0
