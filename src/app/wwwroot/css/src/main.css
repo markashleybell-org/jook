@@ -1,3 +1,7 @@
 #track-list tr {
     cursor: pointer;
 }
+
+.content {
+    margin-top: 115px;
+}
