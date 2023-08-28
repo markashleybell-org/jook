@@ -4,7 +4,7 @@ import { config } from "./config.min.js"
 
 const player = document.querySelector("audio");
 
-let data = null;
+let currentTrackList = null;
 let nowPlayingData = null;
 
 const nowPlayingTemplate = document.getElementById("now-playing-template").innerText;
@@ -120,9 +120,9 @@ async function startTrack(audioElement, cdn, track) {
     setNowPlaying(track);
 }
 
-function start(i) {
-    const track = data.tracks[i];
-    startTrack(player, config.CDN, track);
+async function start(i) {
+    const track = currentTrackList.tracks[i];
+    await startTrack(player, config.CDN, track);
 }
 
 function playPause() {
@@ -134,15 +134,15 @@ const searchForm = document.getElementById("search-form");
 searchForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const url = searchForm.action + "?" + new URLSearchParams(new FormData(searchForm));
-    data = await fetch(url).then((r) => r.json());
-    trackList.innerHTML = mustache.render(trackListEntryTemplate, data);
+    currentTrackList = await fetch(url).then((r) => r.json());
+    trackList.innerHTML = mustache.render(trackListEntryTemplate, currentTrackList);
 });
 
 trackList.addEventListener("click", async (e) => {
     if (e.target.nodeName === "TD") {
         const id = e.target.parentNode.dataset.trackid;
 
-        const track = data.tracks.find((t) => t.trackID == id);
+        const track = currentTrackList.tracks.find((t) => t.trackID == id);
 
         await startTrack(player, config.CDN, track);
     }
@@ -162,6 +162,25 @@ trackList.addEventListener("click", async (e) => {
 
         await cache.put(url, fullResponse);
     }
+});
+
+player.addEventListener('ended', async (e) => {
+    const currentTrackID = nowPlayingData?.trackID;
+
+    if (!currentTrackID) {
+        return;
+    }
+
+    const currentTrackIndex = currentTrackList.tracks.findIndex(t => t.trackID == currentTrackID);
+
+    const nextTrackIndex = currentTrackIndex + 1;
+
+    if (nextTrackIndex >= currentTrackList.tracks.length)
+    {
+        return;
+    } 
+
+    await start(nextTrackIndex);
 });
 
 window.PLAYER = {
