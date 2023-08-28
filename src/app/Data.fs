@@ -9,12 +9,13 @@ let inline orNull (s: string option) =
     | Some(v) -> v
     | None -> null
 
-let trackList (getConnection: unit -> IDbConnection) (title: string option) (artist: string option) (genre: string option) =
+let trackList (getConnection: unit -> IDbConnection) (title: string option) (artist: string option) (album: string option) (genre: string option) =
     use conn = getConnection ()
 
     let parameters = {|
         Title = title |> orNull
         Artist = artist |> orNull
+        Album = album |> orNull
         Genre = genre |> orNull
     |}
 

@@ -4,11 +4,13 @@ GO
 CREATE OR ALTER PROCEDURE TrackSearch
     @Title NVARCHAR(256),
     @Artist NVARCHAR(256),
+    @Album NVARCHAR(256),
     @Genre NVARCHAR(256)
 AS
 BEGIN
     SET @Title = NULLIF(ISNULL(@Title, ''), '')
     SET @Artist = NULLIF(ISNULL(@Artist, ''), '')
+    SET @Album = NULLIF(ISNULL(@Album, ''), '')
     SET @Genre = NULLIF(ISNULL(@Genre, ''), '')
 
     SELECT
@@ -36,6 +38,8 @@ BEGIN
         (@Title IS NULL OR t.Title LIKE '%' + @Title + '%')
     AND
         (@Artist IS NULL OR aa.Name LIKE '%' + @Artist + '%')
+    AND
+        (@Album IS NULL OR a.Title LIKE '%' + @Album + '%')
     AND
         (@Genre IS NULL OR g.Name LIKE '%' + @Genre + '%')
     ORDER BY

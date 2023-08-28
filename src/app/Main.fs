@@ -46,9 +46,10 @@ let main args =
             get "/tracks" (fun _ cf q -> 
                 let title = q.TryGet ("title")
                 let artist = q.TryGet ("artist")
+                let album = q.TryGet ("album")
                 let genre = q.TryGet ("genre")
                 
-                let data = {| tracks = trackList cf title artist genre |}
+                let data = {| tracks = trackList cf title artist album genre |}
 
                 Response.ofJsonOptions jsonOptions data)
         ]
