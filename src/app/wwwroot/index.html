@@ -10,13 +10,19 @@
             <div class="container-fluid">
                 <form method="get" action="/tracks" id="search-form">
                     <input type="text" name="title" placeholder="Title" value="">
-                    <input type="text" name="artist" placeholder="Artist" value="">
+                    <input type="text" name="artist" placeholder="Artist" value="daughter">
                     <input type="text" name="album" placeholder="Album" value="">
                     <input type="text" name="genre" placeholder="Genre" value="">
                     <button type="submit">Search</button>
                 </div>
                 <br>
                 <audio controls></audio>
+                <div class="btn-group" role="group" id="play-mode-selector">
+                    <input type="radio" class="btn-check" id="btn-playmode-normal" data-play-mode="0" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="btn-playmode-normal">Normal</label>                
+                    <input type="radio" class="btn-check" id="btn-playmode-shuffle" data-play-mode="1" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="btn-playmode-shuffle">Shuffle</label>
+                </div>
                 <div id="now-playing">
                     <span>Click a track to play</span>
                 </div>

@@ -7,8 +7,13 @@ const player = document.querySelector("audio");
 let currentTrackList = null;
 let nowPlayingData = null;
 
+// 0 = sequential, 1 = shuffle
+let playMode = 0;
+let played = [];
+
 const nowPlayingTemplate = document.getElementById("now-playing-template").innerText;
 
+const playModeSelector = document.querySelector("#play-mode-selector");
 const nowPlaying = document.querySelector("#now-playing");
 
 function setNowPlaying(trackInfo) {
@@ -136,6 +141,7 @@ searchForm.addEventListener("submit", async (e) => {
     const url = searchForm.action + "?" + new URLSearchParams(new FormData(searchForm));
     currentTrackList = await fetch(url).then((r) => r.json());
     trackList.innerHTML = mustache.render(trackListEntryTemplate, currentTrackList);
+    played = [];
 });
 
 trackList.addEventListener("click", async (e) => {
@@ -171,9 +177,20 @@ player.addEventListener('ended', async (e) => {
         return;
     }
 
+    played.push(currentTrackID);
+
     const currentTrackIndex = currentTrackList.tracks.findIndex(t => t.trackID == currentTrackID);
 
-    const nextTrackIndex = currentTrackIndex + 1;
+    let currentUnplayedIndexes = currentTrackList.tracks
+        .map((t,i)=> ({ i: i, trackID: t.trackID }))
+        .filter(t => !played.includes(t.trackID))
+        .map(t => t.i);
+        
+    // console.log(currentUnplayedIndexes);
+
+    const nextTrackIndex = playMode === 1
+        ? currentUnplayedIndexes[Math.floor(Math.random() * currentUnplayedIndexes.length)] || currentTrackList.tracks.length + 1
+        : currentTrackIndex + 1;
 
     if (nextTrackIndex >= currentTrackList.tracks.length)
     {
@@ -181,6 +198,14 @@ player.addEventListener('ended', async (e) => {
     } 
 
     await start(nextTrackIndex);
+});
+
+playModeSelector.addEventListener('click', async (e) => {
+    if (e.target.classList.contains('btn-check')) {
+        Array.from(e.target.parentNode.querySelectorAll('.btn-check')).forEach(e => { e.checked = false; });
+        e.target.checked = true;
+        playMode = parseInt(e.target.dataset.playMode, 10);
+    }
 });
 
 window.PLAYER = {
