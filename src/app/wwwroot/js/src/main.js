@@ -1,6 +1,6 @@
 import mustache from "https://cdnjs.cloudflare.com/ajax/libs/mustache.js/4.2.0/mustache.min.js";
 
-import { config } from "./config.min.js"
+import { config } from "./config.js"
 
 const player = document.querySelector("audio");
 
