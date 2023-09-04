@@ -51,4 +51,4 @@ BEGIN
 END
 GO
 
--- EXEC TrackSearch @Title = NULL, @Artist = NULL, @Genre = NULL
+-- EXEC TrackSearch @Title = NULL, @Artist = NULL, @Album = NULL, @Genre = NULL
