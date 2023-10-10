@@ -409,11 +409,13 @@ FodyWeavers.xsd
 
 # Project-specific Ignores
 appsettings.Development.json
+appsettings.Production.json
 
 src/app/wwwroot/css/dist/
 src/app/wwwroot/js/dist/
 src/app/wwwroot/js/src/config.js
 
 !src/db/*.code-workspace
+!src/db/releases
 
 tools/config.json

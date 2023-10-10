@@ -1,3 +1,3 @@
 export const config = {
-    CDN:  'https://cdn.hostname.here'
+    CDN: 'CI_VARIABLE' // CDN URL, e.g. https://cdn.hostname.here
 }
