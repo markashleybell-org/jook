@@ -3,20 +3,14 @@
     <head>
         <title>Jook</title>
         <link rel="stylesheet" type="text/css" href="/css/dist/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="/css/dist/main.min.css">
+        <!-- <link rel="stylesheet" type="text/css" href="/css/dist/main.min.css"> -->
+        <link rel="stylesheet" type="text/css" href="/css/src/main.css">
     </head>
     <body data-bs-theme="dark">
         <nav class="navbar bg-dark fixed-top">
             <div class="container-fluid">
-                <form method="get" action="/tracks" id="search-form">
-                    <input type="text" name="title" placeholder="Title" value="">
-                    <input type="text" name="artist" placeholder="Artist" value="">
-                    <input type="text" name="album" placeholder="Album" value="">
-                    <input type="text" name="genre" placeholder="Genre" value="">
-                    <button type="submit">Search</button>
-                </div>
-                <br>
                 <audio controls></audio>
+                <button id="replace-playlist">TEMP: Replace Playlist</button>
                 <div class="btn-group" role="group" id="play-mode-selector">
                     <input type="radio" class="btn-check" id="btn-playmode-normal" data-play-mode="0" autocomplete="off" checked>
                     <label class="btn btn-outline-primary" for="btn-playmode-normal">Normal</label>                
@@ -29,6 +23,28 @@
             </div>
         </nav>
         <div class="content p-10">
+            <h1>Playlist</h1>
+            <table id="play-list" class="table">
+                <thead>
+                    <tr>
+                        <th>Album Artist</th>
+                        <th>Artist</th>
+                        <th>Album</th>
+                        <th>Title</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <h1>Search</h1>
+            <form method="get" action="/tracks" id="search-form">
+                <input type="text" name="title" placeholder="Title" value="">
+                <input type="text" name="artist" placeholder="Artist" value="daughter">
+                <input type="text" name="album" placeholder="Album" value="">
+                <input type="text" name="genre" placeholder="Genre" value="">
+                <button type="submit">Search</button>
+            </div>
             <table id="track-list" class="table">
                 <thead>
                     <tr>
@@ -48,7 +64,7 @@
         </script>
         <script id="track-list-entry-template" type="text/template">
             {{#tracks}}
-            <tr data-trackid="{{trackID}}">
+            <tr data-trackid="{{trackID}}" data-trackindex="{{index}}">
                 <td>{{albumArtist}}</td>
                 <td>{{artist}}</td>
                 <td>{{album}}</td>

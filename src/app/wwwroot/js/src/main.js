@@ -4,17 +4,32 @@ import { config } from "./config.js"
 
 const player = document.querySelector("audio");
 
-let currentTrackList = null;
-let nowPlayingData = null;
-
 // 0 = sequential, 1 = shuffle
 let playMode = 0;
-let played = [];
+
+let currentTrackList = [];
+
+let currentPlayList = [];
+let currentPlayListIndex = 0;
+
+let nowPlayingData = null;
 
 const nowPlayingTemplate = document.getElementById("now-playing-template").innerText;
+const trackListEntryTemplate = document.getElementById("track-list-entry-template").innerText;
 
-const playModeSelector = document.querySelector("#play-mode-selector");
-const nowPlaying = document.querySelector("#now-playing");
+const playModeSelector = document.getElementById("play-mode-selector");
+const nowPlaying = document.getElementById("now-playing");
+const searchForm = document.getElementById("search-form");
+const trackList = document.querySelector("#track-list tbody");
+const playList = document.querySelector("#play-list tbody");
+const replacePlaylist = document.getElementById("replace-playlist");
+
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
 
 function setNowPlaying(trackInfo) {
     nowPlayingData = trackInfo;
@@ -102,18 +117,12 @@ async function deleteFileFromLocalCache(url) {
     return await cache.delete(url);
 }
 
-const trackListEntryTemplate = document.getElementById("track-list-entry-template").innerText;
-
-const trackList = document.querySelector("#track-list tbody");
+function setCurrentPlayListIndex(index) {
+    currentPlayListIndex = index;
+    console.log(currentPlayListIndex);
+}
 
 async function startTrack(audioElement, cdn, track) {
-    if (track.trackID === nowPlayingData?.trackID)
-    {
-        audioElement.paused ? await audioElement.play() : await audioElement.pause();
-        
-        return;
-    }
-
     const cached = await caches.match(track.url).then(r => r ? r.blob() : undefined);
 
     audioElement.src = cached 
@@ -126,7 +135,7 @@ async function startTrack(audioElement, cdn, track) {
 }
 
 async function start(i) {
-    const track = currentTrackList.tracks[i];
+    const track = currentPlayList[i];
     await startTrack(player, config.CDN, track);
 }
 
@@ -134,23 +143,40 @@ function playPause() {
     player.paused ? player.play() : player.pause();
 }
 
-const searchForm = document.getElementById("search-form");
+function renderTrackList(trackList) {
+    return mustache.render(trackListEntryTemplate, { 
+        tracks: trackList.map((t, i) => ({
+            albumArtist: t.albumArtist,
+            album: t.album,
+            artist: t.artist,
+            trackID: t.trackID,
+            title: t.title,
+            url: t.url,
+            index: i
+        }))
+    });
+}
 
 searchForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const url = searchForm.action + "?" + new URLSearchParams(new FormData(searchForm));
-    currentTrackList = await fetch(url).then((r) => r.json());
-    trackList.innerHTML = mustache.render(trackListEntryTemplate, currentTrackList);
-    played = [];
+    currentTrackList = await fetch(url).then((r) => r.json()).then((r) => r.tracks);
+    trackList.innerHTML = renderTrackList(currentTrackList);
 });
 
-trackList.addEventListener("click", async (e) => {
+playList.addEventListener("click", async (e) => {
     if (e.target.nodeName === "TD") {
-        const id = e.target.parentNode.dataset.trackid;
+        const index = parseInt(e.target.parentNode.dataset.trackindex, 10);
 
-        const track = currentTrackList.tracks.find((t) => t.trackID == id);
+        if (index === currentPlayListIndex)
+        {
+            playPause();
+            return;
+        }
 
-        await startTrack(player, config.CDN, track);
+        setCurrentPlayListIndex(index);
+        await start(index);
+        return;
     }
 
     if (e.target.classList.contains("download")) {
@@ -171,33 +197,14 @@ trackList.addEventListener("click", async (e) => {
 });
 
 player.addEventListener('ended', async (e) => {
-    const currentTrackID = nowPlayingData?.trackID;
+    setCurrentPlayListIndex(currentPlayListIndex + 1);
 
-    if (!currentTrackID) {
+    if (currentPlayListIndex === currentPlayList.length) {
+        setCurrentPlayListIndex(0);
         return;
     }
 
-    played.push(currentTrackID);
-
-    const currentTrackIndex = currentTrackList.tracks.findIndex(t => t.trackID == currentTrackID);
-
-    let currentUnplayedIndexes = currentTrackList.tracks
-        .map((t,i)=> ({ i: i, trackID: t.trackID }))
-        .filter(t => !played.includes(t.trackID))
-        .map(t => t.i);
-        
-    // console.log(currentUnplayedIndexes);
-
-    const nextTrackIndex = playMode === 1
-        ? currentUnplayedIndexes[Math.floor(Math.random() * currentUnplayedIndexes.length)] || currentTrackList.tracks.length + 1
-        : currentTrackIndex + 1;
-
-    if (nextTrackIndex >= currentTrackList.tracks.length)
-    {
-        return;
-    } 
-
-    await start(nextTrackIndex);
+    await start(currentPlayListIndex);
 });
 
 playModeSelector.addEventListener('click', async (e) => {
@@ -208,11 +215,26 @@ playModeSelector.addEventListener('click', async (e) => {
     }
 });
 
+replacePlaylist.addEventListener('click', async (e) => {
+    setCurrentPlayListIndex(0);
+    currentPlayList = currentTrackList.slice(0);
+    if (playMode === 1) {
+        shuffle(currentPlayList);
+    }
+    playList.innerHTML = renderTrackList(currentPlayList);
+});
+
 window.PLAYER = {
     config: config,
     getNowPlayingData: function() { return nowPlayingData },
     start: start,
     playPause: playPause,
     download: downloadFile,
-    removeCached: deleteFileFromLocalCache
+    removeCached: deleteFileFromLocalCache,
+    getTrackData: function() { 
+        return {
+            currentTrackList,
+            currentPlayList
+        }
+    }
 };

@@ -2,6 +2,10 @@
     cursor: pointer;
 }
 
+#play-list tr {
+    cursor: pointer;
+}
+
 .content {
     margin-top: 115px;
 }
