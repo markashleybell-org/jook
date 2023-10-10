@@ -256,24 +256,14 @@ clearPlaylist.addEventListener('click', async (e) => {
 replacePlaylist.addEventListener('click', async (e) => {
     setCurrentPlayListIndex(0);
     currentPlayList = currentSearchList.slice(0);
-    if (playMode === 1) {
-        shuffle(currentPlayList);
-    }
     playList.innerHTML = renderPlayList(currentPlayList);
 });
 
 searchList.addEventListener('click', async (e) => {
     if (e.target.classList.contains("add-to-playlist")) {
         e.preventDefault();
-        
         const index = parseInt(e.target.dataset.trackindex, 10);
-
         currentPlayList.push(currentSearchList[index]);
-
-        // if (playMode === 1) {
-        //     shuffle(currentPlayList);
-        // }
-
         playList.innerHTML = renderPlayList(currentPlayList);
     }
 });
