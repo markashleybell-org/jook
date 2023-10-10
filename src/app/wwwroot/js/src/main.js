@@ -166,13 +166,15 @@ searchForm.addEventListener("submit", async (e) => {
 
 playList.addEventListener("click", async (e) => {
     if (e.target.nodeName === "TD") {
-        const index = parseInt(e.target.parentNode.dataset.trackindex, 10);
+        const trackID = parseInt(e.target.parentNode.dataset.trackid, 10);
 
-        if (index === currentPlayListIndex)
+        if (trackID === nowPlayingData?.trackID)
         {
             playPause();
             return;
         }
+
+        const index = parseInt(e.target.parentNode.dataset.trackindex, 10);
 
         setCurrentPlayListIndex(index);
         await start(index);
