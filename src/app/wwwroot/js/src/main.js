@@ -132,6 +132,12 @@ async function startTrack(audioElement, cdn, track) {
     await audioElement.play();
 
     setNowPlaying(track);
+
+    playList.querySelector('.playing-track')?.classList.remove('playing-track');
+
+    const tmp = playList.querySelector(`[data-trackid="${track.trackID}"]`);
+    
+    tmp?.classList.add('playing-track');
 }
 
 async function start(i) {

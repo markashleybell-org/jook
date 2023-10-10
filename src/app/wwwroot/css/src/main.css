@@ -9,3 +9,7 @@
 .content {
     margin-top: 115px;
 }
+
+.table tr.playing-track td {
+    background-color: #404040;
+}
