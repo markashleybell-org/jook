@@ -9,7 +9,8 @@ let playMode = 0;
 
 let currentSearchList = [];
 
-let currentPlayList = [];
+let currentPlayListOrdered = [];
+let currentPlayListShuffled = [];
 let currentPlayListIndex = 0;
 
 let nowPlayingData = null;
@@ -25,12 +26,16 @@ const searchList = document.querySelector("#search-list tbody");
 const playList = document.querySelector("#play-list tbody");
 const clearPlaylist = document.getElementById("clear-playlist");
 const replacePlaylist = document.getElementById("replace-playlist");
+const playlistPlay = document.getElementById("playlist-play");
+const playlistPrevious = document.getElementById("playlist-previous");
+const playlistNext = document.getElementById("playlist-next");
 
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
     }
+    return array;
 }
 
 function setNowPlaying(trackInfo) {
@@ -124,6 +129,16 @@ function setCurrentPlayListIndex(index) {
     console.log(currentPlayListIndex);
 }
 
+function addToPlayList(track) {
+    currentPlayListOrdered.push(track);
+    currentPlayListShuffled = shuffle(currentPlayListOrdered.slice(0));
+}
+
+function removeFromPlayList(index) {
+    currentPlayListOrdered.splice(index, 1);
+    currentPlayListShuffled = shuffle(currentPlayListOrdered.slice(0));
+}
+
 async function startTrack(audioElement, cdn, track) {
     const cached = await caches.match(track.url).then(r => r ? r.blob() : undefined);
 
@@ -136,14 +151,11 @@ async function startTrack(audioElement, cdn, track) {
     setNowPlaying(track);
 
     playList.querySelector('.playing-track')?.classList.remove('playing-track');
-
-    const tmp = playList.querySelector(`[data-trackid="${track.trackID}"]`);
-    
-    tmp?.classList.add('playing-track');
+    playList.querySelector(`[data-trackid="${track.trackID}"]`)?.classList.add('playing-track');
 }
 
 async function start(i) {
-    const track = currentPlayList[i];
+    const track = (playMode === 1 ? currentPlayListShuffled : currentPlayListOrdered)[i];
     await startTrack(player, config.CDN, track);
 }
 
@@ -181,22 +193,6 @@ searchForm.addEventListener("submit", async (e) => {
 });
 
 playList.addEventListener("click", async (e) => {
-    if (e.target.nodeName === "TD") {
-        const trackID = parseInt(e.target.parentNode.dataset.trackid, 10);
-
-        if (trackID === nowPlayingData?.trackID)
-        {
-            playPause();
-            return;
-        }
-
-        const index = parseInt(e.target.parentNode.dataset.trackindex, 10);
-
-        setCurrentPlayListIndex(index);
-        await start(index);
-        return;
-    }
-
     if (e.target.classList.contains("download")) {
         e.preventDefault();
         const url = e.target.dataset.url;
@@ -215,23 +211,16 @@ playList.addEventListener("click", async (e) => {
 
     if (e.target.classList.contains("remove-from-playlist")) {
         e.preventDefault();
-        
         const index = parseInt(e.target.dataset.trackindex, 10);
-
-        currentPlayList.splice(index, 1);
-
-        // if (playMode === 1) {
-        //     shuffle(currentPlayList);
-        // }
-
-        playList.innerHTML = renderPlayList(currentPlayList);
+        removeFromPlayList(index);
+        playList.innerHTML = renderPlayList(currentPlayListOrdered);
     }
 });
 
 player.addEventListener('ended', async (e) => {
     setCurrentPlayListIndex(currentPlayListIndex + 1);
 
-    if (currentPlayListIndex === currentPlayList.length) {
+    if (currentPlayListIndex >= currentPlayListOrdered.length) {
         setCurrentPlayListIndex(0);
         return;
     }
@@ -249,30 +238,82 @@ playModeSelector.addEventListener('click', async (e) => {
 
 clearPlaylist.addEventListener('click', async (e) => {
     setCurrentPlayListIndex(0);
-    currentPlayList = [];
-    playList.innerHTML = renderPlayList(currentPlayList);
+    currentPlayListOrdered = [];
+    currentPlayListShuffled = [];
+    playList.innerHTML = renderPlayList(currentPlayListOrdered);
 });
 
 replacePlaylist.addEventListener('click', async (e) => {
     setCurrentPlayListIndex(0);
-    currentPlayList = currentSearchList.slice(0);
-    playList.innerHTML = renderPlayList(currentPlayList);
+    currentPlayListOrdered = currentSearchList.slice(0);
+    currentPlayListShuffled = shuffle(currentPlayListOrdered.slice(0));
+    playList.innerHTML = renderPlayList(currentPlayListOrdered);
 });
 
 searchList.addEventListener('click', async (e) => {
+    if (e.target.nodeName === "TD") {
+        const trackID = parseInt(e.target.parentNode.dataset.trackid, 10);
+
+        if (trackID === nowPlayingData?.trackID)
+        {
+            playPause();
+            return;
+        }
+
+        const index = parseInt(e.target.parentNode.dataset.trackindex, 10);
+
+        await startTrack(player, config.CDN, currentSearchList[index]);
+
+        return;
+    }
+
     if (e.target.classList.contains("add-to-playlist")) {
         e.preventDefault();
         const index = parseInt(e.target.dataset.trackindex, 10);
-        currentPlayList.push(currentSearchList[index]);
-        playList.innerHTML = renderPlayList(currentPlayList);
+        addToPlayList(currentSearchList[index]);
+        playList.innerHTML = renderPlayList(currentPlayListOrdered);
     }
 });
 
+playlistPlay.addEventListener('click', async (e) => {
+    e.preventDefault();
+
+    if (!currentPlayListOrdered.length)
+    {
+        return;
+    }
+
+    setCurrentPlayListIndex(0);
+
+    await start(currentPlayListIndex);
+});
+
+playlistPrevious.addEventListener('click', async (e) => {
+    const previousIndex = currentPlayListIndex - 1;
+
+    if (previousIndex < 0)
+    {
+        return;
+    }
+
+    setCurrentPlayListIndex(previousIndex);
+
+    await start(currentPlayListIndex);
+});
+
+playlistNext.addEventListener('click', async (e) => {
+    const nextIndex = currentPlayListIndex + 1;
+
+    if (nextIndex >= currentPlayListOrdered.length)
+    {
+        return;
+    }
+
+    setCurrentPlayListIndex(nextIndex);
+
+    await start(currentPlayListIndex);
+});
+
 window.PLAYER = {
-    config: config,
-    getNowPlayingData: function() { return nowPlayingData },
-    start: start,
-    playPause: playPause,
-    download: downloadFile,
-    removeCached: deleteFileFromLocalCache
+    config: config
 };
