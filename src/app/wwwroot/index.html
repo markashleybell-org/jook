@@ -10,7 +10,8 @@
         <nav class="navbar bg-dark fixed-top">
             <div class="container-fluid">
                 <audio controls></audio>
-                <button id="replace-playlist">TEMP: Replace Playlist</button>
+                <button id="clear-playlist">Clear Playlist</button>
+                <button id="replace-playlist">Replace Playlist</button>
                 <div class="btn-group" role="group" id="play-mode-selector">
                     <input type="radio" class="btn-check" id="btn-playmode-normal" data-play-mode="0" autocomplete="off" checked>
                     <label class="btn btn-outline-primary" for="btn-playmode-normal">Normal</label>                
@@ -32,6 +33,7 @@
                         <th>Album</th>
                         <th>Title</th>
                         <th>&nbsp;</th>
+                        <th>&nbsp;</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -45,7 +47,7 @@
                 <input type="text" name="genre" placeholder="Genre" value="">
                 <button type="submit">Search</button>
             </div>
-            <table id="track-list" class="table">
+            <table id="search-list" class="table">
                 <thead>
                     <tr>
                         <th>Album Artist</th>
@@ -62,14 +64,26 @@
         <script id="now-playing-template" type="text/template">
             <span>{{artist}} {{title}}</span>
         </script>
-        <script id="track-list-entry-template" type="text/template">
+        <script id="play-list-entry-template" type="text/template">
             {{#tracks}}
             <tr data-trackid="{{trackID}}" data-trackindex="{{index}}">
                 <td>{{albumArtist}}</td>
                 <td>{{artist}}</td>
                 <td>{{album}}</td>
                 <td>{{title}}</td>
+                <td class="text-end"><a href="#" data-trackid="{{trackID}}" data-trackindex="{{index}}" class="remove-from-playlist">Remove</a></td>
                 <td class="text-end"><a href="#" data-url="{{url}}" class="download">Download</a></td>
+            </tr>
+            {{/tracks}}
+        </script>
+        <script id="search-list-entry-template" type="text/template">
+            {{#tracks}}
+            <tr data-trackid="{{trackID}}" data-trackindex="{{index}}">
+                <td>{{albumArtist}}</td>
+                <td>{{artist}}</td>
+                <td>{{album}}</td>
+                <td>{{title}}</td>
+                <td class="text-end"><a href="#" data-trackid="{{trackID}}" data-trackindex="{{index}}" class="add-to-playlist">Add To Playlist</a></td>
             </tr>
             {{/tracks}}
         </script>

@@ -7,7 +7,7 @@ const player = document.querySelector("audio");
 // 0 = sequential, 1 = shuffle
 let playMode = 0;
 
-let currentTrackList = [];
+let currentSearchList = [];
 
 let currentPlayList = [];
 let currentPlayListIndex = 0;
@@ -15,13 +15,15 @@ let currentPlayListIndex = 0;
 let nowPlayingData = null;
 
 const nowPlayingTemplate = document.getElementById("now-playing-template").innerText;
-const trackListEntryTemplate = document.getElementById("track-list-entry-template").innerText;
+const searchListEntryTemplate = document.getElementById("search-list-entry-template").innerText;
+const playListEntryTemplate = document.getElementById("play-list-entry-template").innerText;
 
 const playModeSelector = document.getElementById("play-mode-selector");
 const nowPlaying = document.getElementById("now-playing");
 const searchForm = document.getElementById("search-form");
-const trackList = document.querySelector("#track-list tbody");
+const searchList = document.querySelector("#search-list tbody");
 const playList = document.querySelector("#play-list tbody");
+const clearPlaylist = document.getElementById("clear-playlist");
 const replacePlaylist = document.getElementById("replace-playlist");
 
 function shuffle(array) {
@@ -149,8 +151,8 @@ function playPause() {
     player.paused ? player.play() : player.pause();
 }
 
-function renderTrackList(trackList) {
-    return mustache.render(trackListEntryTemplate, { 
+function renderTrackList(template, trackList) {
+    return mustache.render(template, { 
         tracks: trackList.map((t, i) => ({
             albumArtist: t.albumArtist,
             album: t.album,
@@ -163,11 +165,19 @@ function renderTrackList(trackList) {
     });
 }
 
+function renderSearchList(trackList) {
+    return renderTrackList(searchListEntryTemplate, trackList);
+}
+
+function renderPlayList(trackList) {
+    return renderTrackList(playListEntryTemplate, trackList);
+}
+
 searchForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const url = searchForm.action + "?" + new URLSearchParams(new FormData(searchForm));
-    currentTrackList = await fetch(url).then((r) => r.json()).then((r) => r.tracks);
-    trackList.innerHTML = renderTrackList(currentTrackList);
+    currentSearchList = await fetch(url).then((r) => r.json()).then((r) => r.tracks);
+    searchList.innerHTML = renderSearchList(currentSearchList);
 });
 
 playList.addEventListener("click", async (e) => {
@@ -202,6 +212,20 @@ playList.addEventListener("click", async (e) => {
 
         await cache.put(url, fullResponse);
     }
+
+    if (e.target.classList.contains("remove-from-playlist")) {
+        e.preventDefault();
+        
+        const index = parseInt(e.target.dataset.trackindex, 10);
+
+        currentPlayList.splice(index, 1);
+
+        // if (playMode === 1) {
+        //     shuffle(currentPlayList);
+        // }
+
+        playList.innerHTML = renderPlayList(currentPlayList);
+    }
 });
 
 player.addEventListener('ended', async (e) => {
@@ -223,13 +247,35 @@ playModeSelector.addEventListener('click', async (e) => {
     }
 });
 
+clearPlaylist.addEventListener('click', async (e) => {
+    setCurrentPlayListIndex(0);
+    currentPlayList = [];
+    playList.innerHTML = renderPlayList(currentPlayList);
+});
+
 replacePlaylist.addEventListener('click', async (e) => {
     setCurrentPlayListIndex(0);
-    currentPlayList = currentTrackList.slice(0);
+    currentPlayList = currentSearchList.slice(0);
     if (playMode === 1) {
         shuffle(currentPlayList);
     }
-    playList.innerHTML = renderTrackList(currentPlayList);
+    playList.innerHTML = renderPlayList(currentPlayList);
+});
+
+searchList.addEventListener('click', async (e) => {
+    if (e.target.classList.contains("add-to-playlist")) {
+        e.preventDefault();
+        
+        const index = parseInt(e.target.dataset.trackindex, 10);
+
+        currentPlayList.push(currentSearchList[index]);
+
+        // if (playMode === 1) {
+        //     shuffle(currentPlayList);
+        // }
+
+        playList.innerHTML = renderPlayList(currentPlayList);
+    }
 });
 
 window.PLAYER = {
@@ -238,11 +284,5 @@ window.PLAYER = {
     start: start,
     playPause: playPause,
     download: downloadFile,
-    removeCached: deleteFileFromLocalCache,
-    getTrackData: function() { 
-        return {
-            currentTrackList,
-            currentPlayList
-        }
-    }
+    removeCached: deleteFileFromLocalCache
 };
