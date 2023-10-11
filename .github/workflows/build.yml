@@ -6,9 +6,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
-  DOTNET_PROJECT_FOLDER: ${{ github.workspace }}/src/app
-
 jobs:
   build:
     name: Build
@@ -16,6 +13,8 @@ jobs:
     defaults:
       run:
         working-directory: ${{ env.DOTNET_PROJECT_FOLDER }}
+    env:
+        DOTNET_PROJECT_FOLDER: ${{ github.workspace }}/src/app
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.0
