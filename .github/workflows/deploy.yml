@@ -27,7 +27,7 @@ jobs:
         run: npm ci
 
       - name: Set up UI configuration
-        run: sed 's|CI_VARIABLE|${{ vars.CDN }}|' ./wwwroot/js/src/config.EXAMPLE.js > ./wwwroot/js/src/config.js
+        run: sed 's|CI_VARIABLE|${{ vars.CDN }}|' ./wwwroot/js/src/config.EXAMPLE.ts > ./wwwroot/js/src/config.ts
 
       - name: Build UI
         run: ./build-front-end.sh

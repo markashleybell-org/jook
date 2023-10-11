@@ -1,36 +1,38 @@
 import mustache from "mustache"
 
-import { config } from "./config.js"
+import { TrackData, TrackListItem } from "./types";
 
-const player = document.querySelector("audio");
+import { config } from "./config"
+
+const player = document.querySelector("audio")!;
 
 // 0 = sequential, 1 = shuffle
-let playMode = 0;
+let playMode: number = 0;
 
-let currentSearchList = [];
+let currentSearchList: TrackListItem[] = [];
 
-let currentPlayListOrdered = [];
-let currentPlayListShuffled = [];
-let currentPlayListIndex = 0;
+let currentPlayListOrdered: TrackListItem[] = [];
+let currentPlayListShuffled: TrackListItem[] = [];
+let currentPlayListIndex: number = 0;
 
-let nowPlayingData = null;
+let nowPlayingData: TrackListItem | null = null;
 
-const nowPlayingTemplate = document.getElementById("now-playing-template").innerText;
-const searchListEntryTemplate = document.getElementById("search-list-entry-template").innerText;
-const playListEntryTemplate = document.getElementById("play-list-entry-template").innerText;
+const nowPlayingTemplate = document.getElementById("now-playing-template")!.innerText;
+const searchListEntryTemplate = document.getElementById("search-list-entry-template")!.innerText;
+const playListEntryTemplate = document.getElementById("play-list-entry-template")!.innerText;
 
-const playModeSelector = document.getElementById("play-mode-selector");
-const nowPlaying = document.getElementById("now-playing");
-const searchForm = document.getElementById("search-form");
-const searchList = document.querySelector("#search-list tbody");
-const playList = document.querySelector("#play-list tbody");
-const clearPlaylist = document.getElementById("clear-playlist");
-const replacePlaylist = document.getElementById("replace-playlist");
-const playlistPlay = document.getElementById("playlist-play");
-const playlistPrevious = document.getElementById("playlist-previous");
-const playlistNext = document.getElementById("playlist-next");
+const playModeSelector = document.getElementById("play-mode-selector")!;
+const nowPlaying = document.getElementById("now-playing")!;
+const searchForm = document.getElementById("search-form")! as HTMLFormElement;
+const searchList = document.querySelector("#search-list tbody")!;
+const playList = document.querySelector("#play-list tbody")!;
+const clearPlaylist = document.getElementById("clear-playlist")!;
+const replacePlaylist = document.getElementById("replace-playlist")!;
+const playlistPlay = document.getElementById("playlist-play")!;
+const playlistPrevious = document.getElementById("playlist-previous")!;
+const playlistNext = document.getElementById("playlist-next")!;
 
-function shuffle(array) {
+function shuffle(array: TrackListItem[]) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
@@ -38,7 +40,7 @@ function shuffle(array) {
     return array;
 }
 
-function setNowPlaying(trackInfo) {
+function setNowPlaying(trackInfo: TrackListItem) {
     nowPlayingData = trackInfo;
 
     nowPlaying.innerHTML = mustache.render(nowPlayingTemplate, nowPlayingData);
@@ -84,15 +86,15 @@ function setNowPlaying(trackInfo) {
     }
 }
 
-async function downloadFile(url) {
+async function downloadFile(url: URL) {
     const response = await fetch(url);
-    const contentLength = response.headers.get("Content-Length");
+    const contentLength = response.headers.get("Content-Length")!;
     const total = parseInt(contentLength, 10);
 
     let loaded = 0;
 
     const stream = response.body;
-    const reader = stream.getReader();
+    const reader = stream!.getReader();
 
     return new Response(
         new ReadableStream({
@@ -118,28 +120,28 @@ async function downloadFile(url) {
     );
 }
 
-async function deleteFileFromLocalCache(url) {
+async function deleteFileFromLocalCache(url: URL) {
     const cache = await caches.open("jook-audio");
 
     return await cache.delete(url);
 }
 
-function setCurrentPlayListIndex(index) {
+function setCurrentPlayListIndex(index: number) {
     currentPlayListIndex = index;
     console.log(currentPlayListIndex);
 }
 
-function addToPlayList(track) {
+function addToPlayList(track: TrackListItem) {
     currentPlayListOrdered.push(track);
     currentPlayListShuffled = shuffle(currentPlayListOrdered.slice(0));
 }
 
-function removeFromPlayList(index) {
+function removeFromPlayList(index: number) {
     currentPlayListOrdered.splice(index, 1);
     currentPlayListShuffled = shuffle(currentPlayListOrdered.slice(0));
 }
 
-async function startTrack(audioElement, cdn, track) {
+async function startTrack(audioElement: HTMLAudioElement, cdn: string, track: TrackListItem) {
     const cached = await caches.match(track.url).then(r => r ? r.blob() : undefined);
 
     audioElement.src = cached 
@@ -154,7 +156,7 @@ async function startTrack(audioElement, cdn, track) {
     playList.querySelector(`[data-trackid="${track.trackID}"]`)?.classList.add('playing-track');
 }
 
-async function start(i) {
+async function start(i: number) {
     const track = (playMode === 1 ? currentPlayListShuffled : currentPlayListOrdered)[i];
     await startTrack(player, config.CDN, track);
 }
@@ -163,7 +165,7 @@ function playPause() {
     player.paused ? player.play() : player.pause();
 }
 
-function renderTrackList(template, trackList) {
+function renderTrackList(template: string, trackList: TrackData[]) {
     return mustache.render(template, { 
         tracks: trackList.map((t, i) => ({
             albumArtist: t.albumArtist,
@@ -177,31 +179,36 @@ function renderTrackList(template, trackList) {
     });
 }
 
-function renderSearchList(trackList) {
+function renderSearchList(trackList: TrackData[]) {
     return renderTrackList(searchListEntryTemplate, trackList);
 }
 
-function renderPlayList(trackList) {
+function renderPlayList(trackList: TrackData[]) {
     return renderTrackList(playListEntryTemplate, trackList);
 }
 
 searchForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const url = searchForm.action + "?" + new URLSearchParams(new FormData(searchForm));
+    // Deliberate cast to any here: https://github.com/microsoft/TypeScript/issues/30584
+    const url = searchForm.action + "?" + new URLSearchParams(new FormData(searchForm) as any);
     currentSearchList = await fetch(url).then((r) => r.json()).then((r) => r.tracks);
     searchList.innerHTML = renderSearchList(currentSearchList);
 });
 
 playList.addEventListener("click", async (e) => {
-    if (e.target.classList.contains("download")) {
+    const el = e.target! as HTMLElement;
+    if (el.classList.contains("download")) {
         e.preventDefault();
-        const url = e.target.dataset.url;
-        const response = await downloadFile(config.CDN + url);
+        const url = el.dataset.url!;
+        const response = await downloadFile(new URL(config.CDN + url));
         const blob = await response.blob();
 
         const fullResponse = new Response(blob, {
             status: 200,
-            headers: { "Content-Type": "audio/mpeg", "Content-Length": blob.size },
+            headers: { 
+                "Content-Type": "audio/mpeg", 
+                "Content-Length": blob.size.toString() 
+            },
         });
 
         const cache = await caches.open("jook-audio");
@@ -209,9 +216,9 @@ playList.addEventListener("click", async (e) => {
         await cache.put(url, fullResponse);
     }
 
-    if (e.target.classList.contains("remove-from-playlist")) {
+    if (el.classList.contains("remove-from-playlist")) {
         e.preventDefault();
-        const index = parseInt(e.target.dataset.trackindex, 10);
+        const index = parseInt(el.dataset.trackindex!, 10);
         removeFromPlayList(index);
         playList.innerHTML = renderPlayList(currentPlayListOrdered);
     }
@@ -229,10 +236,12 @@ player.addEventListener('ended', async (e) => {
 });
 
 playModeSelector.addEventListener('click', async (e) => {
-    if (e.target.classList.contains('btn-check')) {
-        Array.from(e.target.parentNode.querySelectorAll('.btn-check')).forEach(e => { e.checked = false; });
-        e.target.checked = true;
-        playMode = parseInt(e.target.dataset.playMode, 10);
+    if ((e.target! as HTMLElement).classList.contains('btn-check')) {
+        const el = e.target! as HTMLInputElement;
+        (Array.from(el.parentNode!.querySelectorAll('.btn-check')) as HTMLInputElement[])
+            .forEach(e => { e.checked = false; });
+        el.checked = true;
+        playMode = parseInt(el.dataset.playMode!, 10);
     }
 });
 
@@ -251,8 +260,10 @@ replacePlaylist.addEventListener('click', async (e) => {
 });
 
 searchList.addEventListener('click', async (e) => {
-    if (e.target.nodeName === "TD") {
-        const trackID = parseInt(e.target.parentNode.dataset.trackid, 10);
+    const el = e.target! as HTMLElement;
+    if (el.nodeName === "TD") {
+        const tr = el.parentNode as HTMLTableRowElement;
+        const trackID = parseInt(tr.dataset.trackid!, 10);
 
         if (trackID === nowPlayingData?.trackID)
         {
@@ -260,16 +271,16 @@ searchList.addEventListener('click', async (e) => {
             return;
         }
 
-        const index = parseInt(e.target.parentNode.dataset.trackindex, 10);
+        const index = parseInt(tr.dataset.trackindex!, 10);
 
         await startTrack(player, config.CDN, currentSearchList[index]);
 
         return;
     }
 
-    if (e.target.classList.contains("add-to-playlist")) {
+    if (el.classList.contains("add-to-playlist")) {
         e.preventDefault();
-        const index = parseInt(e.target.dataset.trackindex, 10);
+        const index = parseInt(el.dataset.trackindex!, 10);
         addToPlayList(currentSearchList[index]);
         playList.innerHTML = renderPlayList(currentPlayListOrdered);
     }
@@ -313,7 +324,3 @@ playlistNext.addEventListener('click', async (e) => {
 
     await start(currentPlayListIndex);
 });
-
-window.PLAYER = {
-    config: config
-};
