@@ -1,10 +1,19 @@
 {
+    "scripts": {
+        "js:watch": "esbuild ./wwwroot/js/src/main.js --bundle --watch --sourcemap --outfile=./wwwroot/js/dist/bundle.js",
+        "js:build": "esbuild ./wwwroot/js/src/main.js --bundle --minify --sourcemap --outfile=./wwwroot/js/dist/bundle.js",
+        "css:watch": "esbuild ./wwwroot/css/src/main.css --bundle --watch --sourcemap --outfile=./wwwroot/css/dist/bundle.css",
+        "css:build": "esbuild ./wwwroot/css/src/main.css --bundle --minify --sourcemap --outfile=./wwwroot/css/dist/bundle.css"
+    },
     "devDependencies": {
+        "@types/mustache": "^4.2.3",
         "clean-css": "^5.3.2",
         "clean-css-cli": "^5.6.2",
+        "esbuild": "0.19.4",
         "terser": "^5.17.1"
     },
     "dependencies": {
-        "bootstrap": "^5.3.0"
+        "bootstrap": "^5.3.0",
+        "mustache": "^4.2.0"
     }
 }
