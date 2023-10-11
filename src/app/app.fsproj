@@ -10,6 +10,10 @@
         <Content Update="wwwroot/css/src/**" CopyToPublishDirectory="Never" />
         <Content Update="wwwroot/js/src/**" CopyToPublishDirectory="Never" />
         <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" />
+        <Content Update="package-lock.json" CopyToPublishDirectory="Never" />
+        <Content Update="package.json" CopyToPublishDirectory="Never" />
+        <Content Update="packages.lock.json" CopyToPublishDirectory="Never" />
+        <Content Update="tsconfig.json" CopyToPublishDirectory="Never" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="dapper" Version="2.0.123" />
