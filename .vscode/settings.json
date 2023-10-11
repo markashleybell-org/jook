@@ -1,5 +1,4 @@
 {
-    "explorer.excludeGitIgnore": true,
     "tailwindCSS.experimental.configFile": "src/app/tailwind.config.js",
     "FSharp.inlayHints.disableLongTooltip": true,
     "editor.inlayHints.enabled": "offUnlessPressed",
@@ -7,5 +6,10 @@
     "FSharp.inlayHints.parameterNames": false,
     "FSharp.inlayHints.typeAnnotations": false,
     "FSharp.lineLens.enabled": "never",
-    "FSharp.pipelineHints.enabled": false
+    "FSharp.pipelineHints.enabled": false,
+    "files.exclude": {
+        "**/bin": true,
+        "**/node_modules": true,
+        "**/obj": true
+    }
 }
