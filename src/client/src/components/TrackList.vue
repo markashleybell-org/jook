@@ -10,10 +10,9 @@ defineProps<{
 </script>
 
 <template>
-    <DataTable :value="data" tableStyle="min-width: 50rem">
-        <Column field="albumArtist" header="Album Artist"></Column>
-        <Column field="artist" header="Artist"></Column>
-        <Column field="album" header="Album"></Column>
+    <DataTable :value="data" tableStyle="min-width: 50rem" stripedRows scrollable scrollHeight="600px" :virtualScrollerOptions="{ itemSize: 52 }">
+        <Column field="artist" header="Artist" style="width: 20%"></Column>
+        <Column field="album" header="Album" style="width: 30%"></Column>
         <Column field="title" header="Title"></Column>
     </DataTable>
 </template>
