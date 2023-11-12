@@ -7,6 +7,7 @@ open jook.Data
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.Logging
 open System
+open System.Linq
 open System.Data
 open Microsoft.Data.SqlClient
 open System.Text.Json
@@ -48,8 +49,16 @@ let main args =
                 let artist = q.TryGet ("artist")
                 let album = q.TryGet ("album")
                 let genre = q.TryGet ("genre")
-                
-                let data = {| tracks = trackList cf title artist album genre |}
+
+                let tracks = trackList cf title artist album genre
+
+                let meta = {|
+                    count = tracks.Count()
+                |}
+
+                let data = {| 
+                    meta = meta
+                    tracks = tracks |}
 
                 Response.ofJsonOptions jsonOptions data)
         ]

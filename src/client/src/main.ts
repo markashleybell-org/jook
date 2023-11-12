@@ -1,8 +1,8 @@
-import './assets/main.css'
+import '../node_modules/primevue/resources/themes/bootstrap4-dark-purple/theme.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import PrimeVue from 'primevue/config';
+import PrimeVue from 'primevue/config'
 
 import App from './App.vue'
 import router from './router'
