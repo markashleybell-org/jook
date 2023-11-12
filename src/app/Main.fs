@@ -11,6 +11,7 @@ open System.Linq
 open System.Data
 open Microsoft.Data.SqlClient
 open System.Text.Json
+open Microsoft.AspNetCore.Cors.Infrastructure
 
 let env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
 
@@ -18,6 +19,22 @@ let config = configuration [||] {
     required_json "appsettings.json"
     optional_json $"appsettings.{env}.json"
 }
+
+let corsPolicyName = "local"
+
+let corsPolicy (policyBuilder: CorsPolicyBuilder) =
+    // Note: This is a very lax setting, but a good fit for local development
+    policyBuilder
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials()
+        // Note: The URLs must not end with a /
+        .WithOrigins("https://localhost:5001",
+                     "http://localhost:5173")
+    |> ignore
+
+let corsOptions (options : CorsOptions) =
+    options.AddPolicy(corsPolicyName, corsPolicy)
 
 let jsonOptions = JsonSerializerOptions()
 
@@ -43,6 +60,7 @@ let main args =
     webHost args {
         use_default_files
         use_static_files
+        use_cors corsPolicyName corsOptions
         endpoints [
             get "/tracks" (fun _ cf q -> 
                 let title = q.TryGet ("title")
