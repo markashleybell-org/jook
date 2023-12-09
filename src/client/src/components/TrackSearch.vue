@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { TrackSearchQuery } from '@/types/types';
+import type { TrackSearchQuery } from '@/types/types'
 
 const emit = defineEmits<{
-  (e: 'submit', formData: FormData, query: TrackSearchQuery): void
+    (e: 'submit', formData: FormData, query: TrackSearchQuery): void
 }>()
 
 const query: TrackSearchQuery = {
@@ -11,12 +11,12 @@ const query: TrackSearchQuery = {
     artist: 'metronomy',
     album: '',
     genre: ''
-};
+}
 
-const searchForm = ref<HTMLFormElement | null>(null);
+const searchForm = ref<HTMLFormElement | null>(null)
 
 function handleSubmit() {
-    emit('submit', new FormData(searchForm.value!), query);
+    emit('submit', new FormData(searchForm.value!), query)
 }
 </script>
 

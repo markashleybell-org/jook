@@ -7,25 +7,25 @@ import type { TrackData, TrackListItem } from '@/types/types'
 import { computed, ref } from 'vue'
 import type { DataTableRowDoubleClickEvent } from 'primevue/datatable'
 
-const store = useTracksStore();
+const store = useTracksStore()
 
-const tracks = computed(() => store.tracks.map((t, i) => ({ ...t, index: i })) as TrackListItem[]);
+const tracks = computed(() => store.tracks.map((t, i) => ({ ...t, index: i })) as TrackListItem[])
 
-const currentTrack = ref<TrackData | null>(null);
+const currentTrack = ref<TrackData | null>(null)
 
-async function temp(query: FormData) {
-    await store.getTracks(query);
+async function handleTrackSearchSubmit(query: FormData) {
+    await store.getTracks(query)
 }
 
-function tst(event: DataTableRowDoubleClickEvent) {
-    currentTrack.value = event.data;
+function handleTrackDoubleClick(event: DataTableRowDoubleClickEvent) {
+    currentTrack.value = event.data
 }
 </script>
 
 <template>
     <main>
         <AudioPlayer :track="currentTrack" />
-        <TrackSearch @submit="temp"/>
-        <TrackList :tracks="tracks" @track-double-click="tst" />
+        <TrackSearch @submit="handleTrackSearchSubmit" />
+        <TrackList :tracks="tracks" @track-double-click="handleTrackDoubleClick" />
     </main>
 </template>
