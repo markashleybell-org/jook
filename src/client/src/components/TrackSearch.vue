@@ -8,23 +8,22 @@ const emit = defineEmits<{
 
 const query: TrackSearchQuery = {
     title: '',
-    artist: 'daughter',
+    artist: 'metronomy',
     album: '',
     genre: ''
 };
 
 const searchForm = ref<HTMLFormElement | null>(null);
 
-function test() {
+function handleSubmit() {
     emit('submit', new FormData(searchForm.value!), query);
 }
-
 </script>
 
 <template>
     <h1>Search</h1>
 
-    <form method="get" action="/tracks" ref="searchForm" @submit.prevent="test">
+    <form method="get" action="/tracks" ref="searchForm" @submit.prevent="handleSubmit">
         <input type="text" name="title" placeholder="Title" v-model="query.title" />
         <input type="text" name="artist" placeholder="Artist" v-model="query.artist" />
         <input type="text" name="album" placeholder="Album" v-model="query.album" />
