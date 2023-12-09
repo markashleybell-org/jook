@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     </PropertyGroup>
     <ItemGroup>
@@ -16,8 +16,8 @@
         <Content Update="tsconfig.json" CopyToPublishDirectory="Never" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="dapper" Version="2.0.123" />
+        <PackageReference Include="dapper" Version="2.1.24" />
         <PackageReference Include="Falco" Version="4.*" />
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.2" />
     </ItemGroup>
 </Project>
