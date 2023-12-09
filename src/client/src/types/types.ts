@@ -18,3 +18,10 @@ export interface TrackData {
 export interface TrackListItem extends TrackData {
     index: number
 }
+
+export interface TrackSearchQuery {
+    title: string | null
+    artist: string | null
+    album: string | null
+    genre: string | null
+}

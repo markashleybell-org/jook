@@ -1,4 +1,3 @@
-import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { type TrackData } from '@/types/types'
 
@@ -9,8 +8,9 @@ export const useTracksStore = defineStore('tracks', {
         tracks: [] as TrackData[]
     }),
     actions: {
-        async getTracks(title?: string, artist?: string, album?: string, genre?: string) {
-            this.tracks = await fetch(url).then((r) => r.json()).then((r) => r.tracks);
+        async getTracks(query: FormData) {
+            const queryUrl = url + '?' + new URLSearchParams(query as any)
+            this.tracks = await fetch(queryUrl).then((r) => r.json()).then((r) => r.tracks);
         }
     }
 })

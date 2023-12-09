@@ -4,21 +4,21 @@ import TrackSearch from '../components/TrackSearch.vue'
 import TrackList from '../components/TrackList.vue'
 import { useTracksStore } from '../stores/tracks'
 import type { TrackListItem } from '@/types/types'
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 
 const store = useTracksStore();
 
 const tracks = computed(() => store.tracks.map((t, i) => ({ ...t, index: i })) as TrackListItem[]);
 
-onMounted(() => {
-    store.getTracks()
-})
+async function temp(query: FormData) {
+    await store.getTracks(query);
+}
 </script>
 
 <template>
     <main>
         <AudioPlayer />
-        <TrackSearch />
+        <TrackSearch @submit="temp"/>
         <TrackList :data="tracks" />
     </main>
 </template>
