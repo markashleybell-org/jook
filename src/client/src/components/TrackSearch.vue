@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import TrackSearchInput from '../components/TrackSearchInput.vue'
 import { ref } from 'vue'
 import type { TrackSearchQuery } from '@/types/types'
 
@@ -21,13 +22,24 @@ function handleSubmit() {
 </script>
 
 <template>
-    <h1>Search</h1>
-
-    <form method="get" action="/tracks" ref="searchForm" @submit.prevent="handleSubmit">
-        <input type="text" name="title" placeholder="Title" v-model="query.title" />
-        <input type="text" name="artist" placeholder="Artist" v-model="query.artist" />
-        <input type="text" name="album" placeholder="Album" v-model="query.album" />
-        <input type="text" name="genre" placeholder="Genre" v-model="query.genre" />
-        <button type="submit">Search</button>
+    <form
+        method="get"
+        action="/tracks"
+        class="formgrid grid"
+        ref="searchForm"
+        @submit.prevent="handleSubmit"
+    >
+        <TrackSearchInput name="title" label="Title" v-model="query.title" />
+        <TrackSearchInput name="artist" label="Artist" v-model="query.artist" />
+        <TrackSearchInput name="album" label="Album" v-model="query.album" />
+        <TrackSearchInput name="genre" label="Genre" v-model="query.genre" />
+        <div class="field col relative">
+            <button
+                type="submit"
+                class="absolute bottom-0 bg-primary border-primary-500 px-3 py-2 text-base border-1 border-solid border-round cursor-pointer transition-all transition-duration-200 hover:bg-primary-600 hover:border-primary-600 active:bg-primary-700 active:border-primary-700"
+            >
+                Search
+            </button>
+        </div>
     </form>
 </template>

@@ -3,7 +3,7 @@ import AudioPlayer from '../components/AudioPlayer.vue'
 import TrackSearch from '../components/TrackSearch.vue'
 import TrackList from '../components/TrackList.vue'
 import { useTracksStore } from '../stores/tracks'
-import type { TrackData, TrackListItem } from '@/types/types'
+import type { TrackData, TrackListItem, TrackSearchQuery } from '@/types/types'
 import { computed, ref } from 'vue'
 import type { DataTableRowDoubleClickEvent } from 'primevue/datatable'
 
@@ -13,8 +13,9 @@ const tracks = computed(() => store.tracks.map((t, i) => ({ ...t, index: i })) a
 
 const currentTrack = ref<TrackData | null>(null)
 
-async function handleTrackSearchSubmit(query: FormData) {
+async function handleTrackSearchSubmit(query: FormData, x: TrackSearchQuery) {
     await store.getTracks(query)
+    console.log(x)
 }
 
 function handleTrackDoubleClick(event: DataTableRowDoubleClickEvent) {
