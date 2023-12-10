@@ -38,6 +38,7 @@ function handleSubmit() {
                 type="submit"
                 class="absolute bottom-0 bg-primary border-primary-500 px-3 py-2 text-base border-1 border-solid border-round cursor-pointer transition-all transition-duration-200 hover:bg-primary-600 hover:border-primary-600 active:bg-primary-700 active:border-primary-700"
             >
+                <i class="pi pi-search" style="font-size: 0.8rem"></i> 
                 Search
             </button>
         </div>
