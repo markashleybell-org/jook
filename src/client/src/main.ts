@@ -1,4 +1,6 @@
-import '../node_modules/primevue/resources/themes/bootstrap4-dark-purple/theme.css'
+import 'primevue/resources/themes/bootstrap4-dark-purple/theme.css'
+import 'primeicons/primeicons.css'    
+import 'primeflex/primeflex.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
