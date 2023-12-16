@@ -30,6 +30,10 @@ function handleTrackDoubleClick(track: TrackListItem) {
     <main>
         <AudioPlayer :track="currentTrack" />
         <TrackSearch @submit="handleTrackSearchSubmit" />
-        <TrackList :tracks="tracks" @track-select="handleTrackSelect" @track-double-click="handleTrackDoubleClick" />
+        <TrackList
+            :tracks="tracks"
+            @track-select="handleTrackSelect"
+            @track-double-click="handleTrackDoubleClick"
+        />
     </main>
 </template>

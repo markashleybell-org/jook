@@ -3,7 +3,7 @@ import type { TrackListItem } from '@/types/types'
 
 import DataTable, { type DataTableRowDoubleClickEvent } from 'primevue/datatable'
 import Column from 'primevue/column'
-import { ref, watch } from 'vue';
+import { ref, watch } from 'vue'
 
 defineProps<{
     tracks?: TrackListItem[]
@@ -37,13 +37,12 @@ function handleRowDoubleClick(event: DataTableRowDoubleClickEvent) {
 </script>
 
 <template>
-    <p>{{ selection.length }} tracks selected</p>
-
+    <p>{{ selection.length }} selected</p>
     <DataTable
         :value="tracks"
         v-model:selection="selection"
         :virtualScrollerOptions="{ itemSize: 52 }"
-        :metaKeySelection=false
+        :metaKeySelection="false"
         dataKey="trackID"
         @row-dblclick="handleRowDoubleClick"
         tableStyle="min-width: 50rem"
