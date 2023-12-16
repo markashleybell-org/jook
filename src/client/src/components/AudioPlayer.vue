@@ -12,9 +12,11 @@ const props = defineProps<{
 const player = ref<HTMLAudioElement | null>(null)
 
 const src = computed(() => (props.track ? cdn + props.track.url : undefined))
+
+const nowPlaying = computed(() => (props.track ? `${props.track.artist} - ${props.track.title}` : 'Double-click a track to play'))
 </script>
 
 <template>
-    <span>{{ track?.title }}</span>
     <audio controls ref="player" :src="src" @canplay="player?.play()"></audio>
+    <p>{{ nowPlaying }}</p>
 </template>
