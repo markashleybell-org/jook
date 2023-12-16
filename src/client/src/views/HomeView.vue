@@ -5,7 +5,6 @@ import TrackList from '../components/TrackList.vue'
 import { useTracksStore } from '../stores/tracks'
 import type { TrackData, TrackListItem, TrackSearchQuery } from '@/types/types'
 import { computed, ref } from 'vue'
-import type { DataTableRowDoubleClickEvent } from 'primevue/datatable'
 
 const store = useTracksStore()
 
@@ -18,8 +17,12 @@ async function handleTrackSearchSubmit(query: FormData, x: TrackSearchQuery) {
     console.log(x)
 }
 
-function handleTrackDoubleClick(event: DataTableRowDoubleClickEvent) {
-    currentTrack.value = event.data
+function handleTrackSelect(selection: TrackListItem[]) {
+    console.table(selection)
+}
+
+function handleTrackDoubleClick(track: TrackListItem) {
+    currentTrack.value = track
 }
 </script>
 
@@ -27,6 +30,6 @@ function handleTrackDoubleClick(event: DataTableRowDoubleClickEvent) {
     <main>
         <AudioPlayer :track="currentTrack" />
         <TrackSearch @submit="handleTrackSearchSubmit" />
-        <TrackList :tracks="tracks" @track-double-click="handleTrackDoubleClick" />
+        <TrackList :tracks="tracks" @track-select="handleTrackSelect" @track-double-click="handleTrackDoubleClick" />
     </main>
 </template>
