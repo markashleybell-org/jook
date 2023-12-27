@@ -1,23 +1,45 @@
 <script setup lang="ts">
-import AudioPlayer from '../components/AudioPlayer.vue'
+import Button from 'primevue/button'
+import SelectButton from 'primevue/selectbutton'
 import TrackSearch from '../components/TrackSearch.vue'
 import TrackList from '../components/TrackList.vue'
 import { useTracksStore } from '../stores/tracks'
 import { usePlaylistStore } from '../stores/playlist'
-import type { TrackData, TrackListItem, TrackSearchQuery } from '@/types/types'
+import type { TrackListItem } from '@/types/types'
 import { computed, ref } from 'vue'
 
-const trackStore = useTracksStore()
-const playlistStore = usePlaylistStore()
+// TODO: Move into config
+const cdn = 'https://jookb2.b-cdn.net'
 
-const tracks = computed(() => trackStore.tracks.map((t, i) => ({ ...t, index: i })) as TrackListItem[])
-const playlist = computed(() => playlistStore.tracks.map((t, i) => ({ ...t })) as TrackListItem[])
+const tracks = useTracksStore()
+const playlist = usePlaylistStore()
 
-const currentTrack = ref<TrackData | null>(null)
+const searchResultTracks = computed(() => tracks.tracks.map((t, i) => ({ ...t, index: i })) as TrackListItem[])
+const playlistTracks = computed(() => playlist.tracks.map((t) => ({ ...t })) as TrackListItem[])
 
-async function handleTrackSearchSubmit(query: FormData, x: TrackSearchQuery) {
-    await trackStore.getTracks(query)
-    console.log(x)
+const playModes = ref([
+    {value: 0, label: 'Normal'},
+    {value: 1, label: 'Shuffle'}
+])
+
+const player = ref<HTMLAudioElement | null>(null)
+
+const playing = ref<boolean>(false)
+
+const nowPlaying = computed(() =>
+    playlist.currentTrack ? `${playlist.currentTrack.artist} - ${playlist.currentTrack.title}` : 'Double-click a track to play'
+)
+
+const trackInfo = computed(() =>
+    playlist.currentTrack ? `Track ${playlist.currentIndex + 1} of ${playlist.tracks.length} ${playlist.playMode === 1 ? "(Shuffle)" : ""}` : ''
+)
+
+const nowPlayingSrc = computed(() =>
+    playlist.currentTrack ? cdn + playlist.currentTrack.url : undefined
+)
+
+async function handleTrackSearchSubmit(query: FormData) {
+    await tracks.getTracks(query)
 }
 
 function handleTrackSelect(selection: TrackListItem[]) {
@@ -25,24 +47,74 @@ function handleTrackSelect(selection: TrackListItem[]) {
 }
 
 function handleRemoveButtonClick(track: TrackListItem) {
-    playlistStore.remove([track])
+    playlist.remove([track])
 }
 
 function handleAddButtonClick(track: TrackListItem) {
-    playlistStore.add([track])
+    playlist.add([track])
 }
 
 function handleTrackDoubleClick(track: TrackListItem) {
-    currentTrack.value = track
+    playlist.add([track])
+    handlePlayClick()
+}
+
+async function handlePlayClick() {
+    if (!playlist.currentTrack) {
+        playlist.setTrackIndex(0)
+    }
+    playing.value = true
+}
+
+function handlePauseClick() {
+    if (!playlist.currentTrack) {
+        playlist.setTrackIndex(0)
+    }
+    playing.value = false
+    player.value?.pause()
+}
+
+function handlePreviousClick() {
+    playlist.previous()
+}
+
+function handleNextClick() {
+    playlist.next()
+}
+
+async function play() {
+    try {
+        await player.value?.play()
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+function handleEnded() {
+    if (playlist.currentIndex >= playlist.tracks.length) {
+        return;
+    }
+
+    playlist.next()
 }
 </script>
 
 <template>
     <main>
-        <AudioPlayer :track="currentTrack" />
+        <audio controls ref="player" :src="nowPlayingSrc" preload="metadata" @canplay="play" @ended="handleEnded"></audio>
+    
+        <p>{{ nowPlaying }} &nbsp; {{ trackInfo }}</p>
+
+        <SelectButton v-model="playlist.playMode" :options="playModes" option-label="label" option-value="value" class="" />
+
+        <Button type="button" label="Previous" @click="handlePreviousClick()" icon="pi pi-step-backward" class="mr-2" />
+        <Button type="button" label="Play" @click="handlePlayClick()" v-show="!playing" icon="pi pi-play" class="mr-2" />
+        <Button type="button" label="Pause" @click="handlePauseClick()" v-show="playing" icon="pi pi-pause" class="mr-2" />
+        <Button type="button" label="Next" @click="handleNextClick()" icon="pi pi-step-forward" class="mr-2" />
+
         <TrackList
             height="200px"
-            :tracks="playlist"
+            :tracks="playlistTracks"
             button-icon="pi pi-minus-circle"
             @track-select="handleTrackSelect"
             @track-button-click="handleRemoveButtonClick"
@@ -51,7 +123,7 @@ function handleTrackDoubleClick(track: TrackListItem) {
         <TrackSearch @submit="handleTrackSearchSubmit" />
         <TrackList
             height="600px"
-            :tracks="tracks"
+            :tracks="searchResultTracks"
             button-icon="pi pi-plus-circle"
             @track-select="handleTrackSelect"
             @track-button-click="handleAddButtonClick"

@@ -66,7 +66,13 @@ function handleRowDoubleClick(event: DataTableRowDoubleClickEvent) {
         <Column field="title" header="Title"></Column>
         <Column class="p-0 text-right">
             <template #body="slotProps">
-                <Button type="button" label="" @click="handleRowButtonClick(slotProps.data)" :icon="buttonIcon" size="small" />
+                <Button
+                    type="button"
+                    label=""
+                    @click="handleRowButtonClick(slotProps.data)"
+                    :icon="buttonIcon"
+                    size="small"
+                />
             </template>
         </Column>
     </DataTable>

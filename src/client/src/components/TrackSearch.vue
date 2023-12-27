@@ -22,13 +22,7 @@ function handleSubmit() {
 </script>
 
 <template>
-    <form
-        method="get"
-        action="/tracks"
-        class="formgrid grid"
-        ref="searchForm"
-        @submit.prevent="handleSubmit"
-    >
+    <form method="get" action="/tracks" class="formgrid grid" ref="searchForm" @submit.prevent="handleSubmit">
         <TrackSearchInput name="title" label="Title" v-model="query.title" />
         <TrackSearchInput name="artist" label="Artist" v-model="query.artist" />
         <TrackSearchInput name="album" label="Album" v-model="query.album" />
