@@ -24,7 +24,11 @@ function handleTrackSelect(selection: TrackListItem[]) {
     console.table(selection)
 }
 
-function handleTrackButtonClick(track: TrackListItem) {
+function handleRemoveButtonClick(track: TrackListItem) {
+    playlistStore.remove([track])
+}
+
+function handleAddButtonClick(track: TrackListItem) {
     playlistStore.add([track])
 }
 
@@ -41,7 +45,7 @@ function handleTrackDoubleClick(track: TrackListItem) {
             :tracks="playlist"
             button-icon="pi pi-minus-circle"
             @track-select="handleTrackSelect"
-            @track-button-click="handleTrackButtonClick"
+            @track-button-click="handleRemoveButtonClick"
             @track-double-click="handleTrackDoubleClick"
         />
         <TrackSearch @submit="handleTrackSearchSubmit" />
@@ -50,7 +54,7 @@ function handleTrackDoubleClick(track: TrackListItem) {
             :tracks="tracks"
             button-icon="pi pi-plus-circle"
             @track-select="handleTrackSelect"
-            @track-button-click="handleTrackButtonClick"
+            @track-button-click="handleAddButtonClick"
             @track-double-click="handleTrackDoubleClick"
         />
     </main>
