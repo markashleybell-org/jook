@@ -113,16 +113,18 @@ function handleEnded() {
         <Button type="button" label="Next" @click="handleNextClick()" icon="pi pi-step-forward" class="mr-2" />
 
         <TrackList
-            height="200px"
+            scrollHeight="300px"
             :tracks="playlistTracks"
             button-icon="pi pi-minus-circle"
             @track-select="handleTrackSelect"
             @track-button-click="handleRemoveButtonClick"
             @track-double-click="handleTrackDoubleClick"
         />
+
         <TrackSearch @submit="handleTrackSearchSubmit" />
+
         <TrackList
-            height="600px"
+            scrollHeight="500px"
             :tracks="searchResultTracks"
             button-icon="pi pi-plus-circle"
             @track-select="handleTrackSelect"

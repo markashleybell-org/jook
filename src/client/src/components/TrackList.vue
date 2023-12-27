@@ -8,7 +8,7 @@ import { ref, watch } from 'vue'
 
 defineProps<{
     tracks?: TrackListItem[]
-    height: string
+    scrollHeight: string
     buttonIcon: string
 }>()
 
@@ -45,35 +45,37 @@ function handleRowDoubleClick(event: DataTableRowDoubleClickEvent) {
 </script>
 
 <template>
-    <p>{{ selection.length }} selected</p>
-    <DataTable
-        :value="tracks"
-        v-model:selection="selection"
-        :virtualScrollerOptions="{ itemSize: 37 }"
-        :metaKeySelection="false"
-        dataKey="trackID"
-        @row-dblclick="handleRowDoubleClick"
-        tableStyle="min-width: 50rem; cursor: pointer"
-        stripedRows
-        scrollable
-        size="small"
-        :scrollHeight="height"
-        class="mb-4"
-    >
-        <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
-        <Column field="artist" header="Artist" style="width: 20%"></Column>
-        <Column field="album" header="Album" style="width: 30%"></Column>
-        <Column field="title" header="Title"></Column>
-        <Column class="p-0 text-right">
-            <template #body="slotProps">
-                <Button
-                    type="button"
-                    label=""
-                    @click="handleRowButtonClick(slotProps.data)"
-                    :icon="buttonIcon"
-                    size="small"
-                />
-            </template>
-        </Column>
-    </DataTable>
+    <div>
+        <p>{{ tracks?.length }} items, {{ selection.length }} selected</p>
+        <DataTable
+            :value="tracks"
+            v-model:selection="selection"
+            :virtualScrollerOptions="{ itemSize: 37 }"
+            :metaKeySelection="false"
+            dataKey="trackID"
+            @row-dblclick="handleRowDoubleClick"
+            tableStyle="cursor: pointer"
+            stripedRows
+            scrollable
+            size="small"
+            :scrollHeight="scrollHeight"
+            class="mb-4"
+        >
+            <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+            <Column field="artist" header="Artist" style="width: 20%"></Column>
+            <Column field="album" header="Album" style="width: 30%"></Column>
+            <Column field="title" header="Title"></Column>
+            <Column class="p-0 text-right">
+                <template #body="slotProps">
+                    <Button
+                        type="button"
+                        label=""
+                        @click="handleRowButtonClick(slotProps.data)"
+                        :icon="buttonIcon"
+                        size="small"
+                    />
+                </template>
+            </Column>
+        </DataTable>
+    </div>
 </template>
