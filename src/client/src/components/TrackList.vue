@@ -48,7 +48,7 @@ function handleRowDoubleClick(event: DataTableRowDoubleClickEvent) {
     <DataTable
         :value="tracks"
         v-model:selection="selection"
-        :virtualScrollerOptions="{ itemSize: 52 }"
+        :virtualScrollerOptions="{ itemSize: 37 }"
         :metaKeySelection="false"
         dataKey="trackID"
         @row-dblclick="handleRowDoubleClick"
