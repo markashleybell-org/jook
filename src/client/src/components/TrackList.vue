@@ -4,11 +4,11 @@ import type { TrackListItem } from '@/types/types'
 import DataTable, { type DataTableRowDoubleClickEvent } from 'primevue/datatable'
 import Button from 'primevue/button'
 import Column from 'primevue/column'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
-defineProps<{
+const props = defineProps<{
     tracks?: TrackListItem[]
-    scrollHeight: string
+    height: number
     buttonIcon: string
 }>()
 
@@ -17,6 +17,9 @@ const emit = defineEmits<{
     (e: 'track-button-click', track: TrackListItem): void
     (e: 'track-double-click', track: TrackListItem): void
 }>()
+
+const containerHeight = computed(() => `height: ${props.height + 50}px`)
+const scrollHeight = computed(() => `${props.height}px`)
 
 const selection = ref<TrackListItem[]>([])
 
@@ -45,12 +48,12 @@ function handleRowDoubleClick(event: DataTableRowDoubleClickEvent) {
 </script>
 
 <template>
-    <div>
+    <div :style="containerHeight">
         <p>{{ tracks?.length }} items, {{ selection.length }} selected</p>
         <DataTable
             :value="tracks"
             v-model:selection="selection"
-            :virtualScrollerOptions="{ itemSize: 37 }"
+            :virtualScrollerOptions="{ itemSize: 40 }"
             :metaKeySelection="false"
             dataKey="trackID"
             @row-dblclick="handleRowDoubleClick"

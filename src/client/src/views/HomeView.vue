@@ -18,8 +18,8 @@ const searchResultTracks = computed(() => tracks.tracks.map((t, i) => ({ ...t, i
 const playlistTracks = computed(() => playlist.tracks.map((t) => ({ ...t })) as TrackListItem[])
 
 const playModes = ref([
-    {value: 0, label: 'Normal'},
-    {value: 1, label: 'Shuffle'}
+    { value: 0, label: 'Normal' },
+    { value: 1, label: 'Shuffle' }
 ])
 
 const player = ref<HTMLAudioElement | null>(null)
@@ -27,16 +27,20 @@ const player = ref<HTMLAudioElement | null>(null)
 const playing = ref<boolean>(false)
 
 const nowPlaying = computed(() =>
-    playlist.currentTrack ? `${playlist.currentTrack.artist} - ${playlist.currentTrack.title}` : 'Double-click a track to play'
+    playlist.currentTrack
+        ? `${playlist.currentTrack.artist} - ${playlist.currentTrack.title}`
+        : 'Double-click a track to play'
 )
 
 const trackInfo = computed(() =>
-    playlist.currentTrack ? `Track ${playlist.currentIndex + 1} of ${playlist.tracks.length} ${playlist.playMode === 1 ? "(Shuffle)" : ""}` : ''
+    playlist.currentTrack
+        ? `Track ${playlist.currentIndex + 1} of ${playlist.tracks.length} ${
+              playlist.playMode === 1 ? '(Shuffle)' : ''
+          }`
+        : ''
 )
 
-const nowPlayingSrc = computed(() =>
-    playlist.currentTrack ? cdn + playlist.currentTrack.url : undefined
-)
+const nowPlayingSrc = computed(() => (playlist.currentTrack ? cdn + playlist.currentTrack.url : undefined))
 
 async function handleTrackSearchSubmit(query: FormData) {
     await tracks.getTracks(query)
@@ -86,13 +90,13 @@ async function play() {
     try {
         await player.value?.play()
     } catch (e) {
-        console.log(e);
+        console.log(e)
     }
 }
 
 function handleEnded() {
     if (playlist.currentIndex >= playlist.tracks.length) {
-        return;
+        return
     }
 
     playlist.next()
@@ -101,19 +105,46 @@ function handleEnded() {
 
 <template>
     <main>
-        <audio controls ref="player" :src="nowPlayingSrc" preload="metadata" @canplay="play" @ended="handleEnded"></audio>
-    
+        <audio
+            controls
+            ref="player"
+            :src="nowPlayingSrc"
+            preload="metadata"
+            @canplay="play"
+            @ended="handleEnded"
+        ></audio>
+
         <p>{{ nowPlaying }} &nbsp; {{ trackInfo }}</p>
 
-        <SelectButton v-model="playlist.playMode" :options="playModes" option-label="label" option-value="value" class="" />
+        <SelectButton
+            v-model="playlist.playMode"
+            :options="playModes"
+            option-label="label"
+            option-value="value"
+            class=""
+        />
 
         <Button type="button" label="Previous" @click="handlePreviousClick()" icon="pi pi-step-backward" class="mr-2" />
-        <Button type="button" label="Play" @click="handlePlayClick()" v-show="!playing" icon="pi pi-play" class="mr-2" />
-        <Button type="button" label="Pause" @click="handlePauseClick()" v-show="playing" icon="pi pi-pause" class="mr-2" />
+        <Button
+            type="button"
+            label="Play"
+            @click="handlePlayClick()"
+            v-show="!playing"
+            icon="pi pi-play"
+            class="mr-2"
+        />
+        <Button
+            type="button"
+            label="Pause"
+            @click="handlePauseClick()"
+            v-show="playing"
+            icon="pi pi-pause"
+            class="mr-2"
+        />
         <Button type="button" label="Next" @click="handleNextClick()" icon="pi pi-step-forward" class="mr-2" />
 
         <TrackList
-            scrollHeight="300px"
+            :height="300"
             :tracks="playlistTracks"
             button-icon="pi pi-minus-circle"
             @track-select="handleTrackSelect"
@@ -124,7 +155,7 @@ function handleEnded() {
         <TrackSearch @submit="handleTrackSearchSubmit" />
 
         <TrackList
-            scrollHeight="500px"
+            :height="500"
             :tracks="searchResultTracks"
             button-icon="pi pi-plus-circle"
             @track-select="handleTrackSelect"
