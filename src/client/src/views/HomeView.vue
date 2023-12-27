@@ -39,6 +39,7 @@ function handleTrackDoubleClick(track: TrackListItem) {
         <TrackList
             height="200px"
             :tracks="playlist"
+            button-icon="pi pi-minus-circle"
             @track-select="handleTrackSelect"
             @track-button-click="handleTrackButtonClick"
             @track-double-click="handleTrackDoubleClick"
@@ -47,6 +48,7 @@ function handleTrackDoubleClick(track: TrackListItem) {
         <TrackList
             height="600px"
             :tracks="tracks"
+            button-icon="pi pi-plus-circle"
             @track-select="handleTrackSelect"
             @track-button-click="handleTrackButtonClick"
             @track-double-click="handleTrackDoubleClick"

@@ -9,6 +9,7 @@ import { ref, watch } from 'vue'
 defineProps<{
     tracks?: TrackListItem[]
     height: string
+    buttonIcon: string
 }>()
 
 const emit = defineEmits<{
@@ -65,7 +66,7 @@ function handleRowDoubleClick(event: DataTableRowDoubleClickEvent) {
         <Column field="title" header="Title"></Column>
         <Column class="p-0 text-right">
             <template #body="slotProps">
-                <Button type="button" label="" @click="handleRowButtonClick(slotProps.data)" icon="pi pi-plus-circle" size="small" />
+                <Button type="button" label="" @click="handleRowButtonClick(slotProps.data)" :icon="buttonIcon" size="small" />
             </template>
         </Column>
     </DataTable>
