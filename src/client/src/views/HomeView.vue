@@ -125,6 +125,7 @@ function handleEnded() {
         />
 
         <Button type="button" label="Previous" @click="handlePreviousClick()" icon="pi pi-step-backward" class="mr-2" />
+
         <Button
             type="button"
             label="Play"
@@ -133,6 +134,7 @@ function handleEnded() {
             icon="pi pi-play"
             class="mr-2"
         />
+
         <Button
             type="button"
             label="Pause"
@@ -141,6 +143,7 @@ function handleEnded() {
             icon="pi pi-pause"
             class="mr-2"
         />
+
         <Button type="button" label="Next" @click="handleNextClick()" icon="pi pi-step-forward" class="mr-2" />
 
         <TrackList
@@ -150,6 +153,7 @@ function handleEnded() {
             @track-select="handleTrackSelect"
             @track-button-click="handleRemoveButtonClick"
             @track-double-click="handleTrackDoubleClick"
+            v-if="playlist.tracks.length > 0"
         />
 
         <TrackSearch @submit="handleTrackSearchSubmit" />
