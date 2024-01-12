@@ -30,3 +30,7 @@ type TrackSummary = {
     TrackNumber: int option
     Title: string
     Url: string }
+
+[<CLIMutable>]
+type Playlist = { 
+    Tracks: TrackSummary list }
