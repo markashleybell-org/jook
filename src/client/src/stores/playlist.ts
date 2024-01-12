@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
+import { post } from './common';
 import { type TrackListItem } from '@/types/types'
+import { toRaw } from 'vue';
 
 function shuffle(array: TrackListItem[]) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -55,6 +57,13 @@ export const usePlaylistStore = defineStore('playlist', {
             }
 
             this.setTrackIndex(nextIndex)
+        },
+        async save() {
+            const payload: any = {
+                tracks: toRaw(this.tracks)
+            };
+
+            await post("/playlist", payload)
         }
     }
 })

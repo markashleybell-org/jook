@@ -47,13 +47,23 @@ type ApplicationLogger = class end
 let getDatabaseConnection () : IDbConnection =
     new SqlConnection(connectionString) :> IDbConnection
 
-let withServices getData handler : HttpHandler = fun ctx ->
+let withServicesGet handler : HttpHandler = fun ctx ->
     let logger = ctx.GetService<ILogger<ApplicationLogger>>()
-    let data = getData ctx
+    let data = Request.getQuery ctx
     handler logger getDatabaseConnection data ctx
 
+let withServicesPost handler : HttpHandler = fun ctx ->
+    let logger = ctx.GetService<ILogger<ApplicationLogger>>()
+    task {
+        let! body = Request.getJsonOptions jsonOptions ctx
+        return handler logger getDatabaseConnection body ctx
+    }
+
 let get route handler = 
-    get route (withServices Request.getQuery handler)
+    get route (withServicesGet handler)
+
+let post route handler = 
+    post route (withServicesPost handler)
 
 [<EntryPoint>]
 let main args =
@@ -79,6 +89,9 @@ let main args =
                     tracks = tracks |}
 
                 Response.ofJsonOptions jsonOptions data)
+            post "/playlist" (fun _ cf body -> 
+                // TODO: Persist the playlist tracks and title etc
+                Response.ofJsonOptions jsonOptions body)
         ]
     }
     0

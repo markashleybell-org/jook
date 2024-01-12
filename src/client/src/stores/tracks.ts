@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia'
+import { get } from './common';
 import { type TrackData } from '@/types/types'
-
-// TODO: Move into config
-const url = 'https://localhost:5001/tracks'
 
 export const useTracksStore = defineStore('tracks', {
     state: () => ({
@@ -10,10 +8,8 @@ export const useTracksStore = defineStore('tracks', {
     }),
     actions: {
         async getTracks(query: FormData) {
-            const queryUrl = url + '?' + new URLSearchParams(query as any)
-            this.tracks = await fetch(queryUrl)
-                .then((r) => r.json())
-                .then((r) => r.tracks)
+            const queryUrl = '/tracks?' + new URLSearchParams(query as any)
+            this.tracks = await get(queryUrl).then((r) => r.tracks)
         }
     }
 })

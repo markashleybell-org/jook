@@ -86,6 +86,11 @@ function handleNextClick() {
     playlist.next()
 }
 
+async function handleSavePlaylistClick() {
+    // TODO: Persist the playlist tracks and title etc (modal? https://primevue.org/dialog/)
+    await playlist.save()
+}
+
 async function play() {
     try {
         await player.value?.play()
@@ -145,6 +150,14 @@ function handleEnded() {
         />
 
         <Button type="button" label="Next" @click="handleNextClick()" icon="pi pi-step-forward" class="mr-2" />
+
+        <Button
+            type="button"
+            label="Save Playlist As..."
+            @click="handleSavePlaylistClick()"
+            icon="pi pi-save"
+            class="mr-2"
+        />
 
         <TrackList
             :height="300"
