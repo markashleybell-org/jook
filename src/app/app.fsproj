@@ -18,6 +18,6 @@
     <ItemGroup>
         <PackageReference Include="dapper" Version="2.0.123" />
         <PackageReference Include="Falco" Version="4.*" />
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.3" />
     </ItemGroup>
 </Project>
